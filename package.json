@@ -1,13 +1,19 @@
 {
   "name": "yassi",
-  "version": "1.0.0",
+  "version": "0.6.5",
   "description": "Yet another simple store implementation",
   "main": "build/main/index.js",
   "typings": "build/main/index.d.ts",
   "module": "build/module/index.js",
-  "repository": "https://github.com/YOUR_GITHUB_USER_NAME/yassi",
+  "repository": "https://github.com/KErez/yassi",
   "license": "MIT",
-  "keywords": [],
+  "keywords": [
+    "yassi",
+    "store",
+    "redux",
+    "flux",
+    "rxjs"
+  ],
   "scripts": {
     "describe": "npm-scripts-info",
     "build": "run-s clean && run-p build:*",

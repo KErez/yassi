@@ -11,7 +11,8 @@
     "no-console": false,
     "only-arrow-functions": false,
     "prefer-const": false,
-    "max-classes-per-file": false
+    "max-classes-per-file": false,
+    "no-submodule-imports": false
 
 //
 //    /* tslint-immutable rules */

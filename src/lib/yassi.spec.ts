@@ -3,6 +3,8 @@
 
 
 import test from 'ava';
+import {BehaviorSubject, Observable} from "rxjs";
+import {take} from "rxjs/operators";
 
 import {observe, select, yassit} from './yassi';
 
@@ -22,11 +24,24 @@ class TestSource {
   numProp3: number = 3;
 
   @yassit('TestSource.srcStringProp4')
-  strProp4: string = 'hey there';
+  strProp4: string = 'Not Again';
 
   @yassit('TestSource.srcObjProp5')
   objProp5: any = {
     msg: 'this is a property in object'
+  };
+
+  @yassit('TestSource.srcAsyncNumProp6')
+  asyncProp6: number = 42;
+
+  changeProp6Async() {
+    let promise = new Promise((resolve) => {
+      setTimeout(() => {
+        this.asyncProp6 = 345;
+        resolve();
+      }, 500);
+    });
+    return promise;
   }
 }
 
@@ -35,7 +50,7 @@ test('object instance with Yassi but works as without', (t) => {
   t.is(test1.numProp1, undefined);
   t.is(test1.numProp2, 2);
   t.is(test1.numProp3, 3);
-  t.is(test1.strProp4, 'hey there');
+  t.is(test1.strProp4, 'Not Again');
 });
 
 test("object A's property is selected by object B", (t) => {
@@ -154,5 +169,40 @@ test('observe a store property using @observe and get the pushed values immediat
   test1.numProp2 = 50;
   test1.numProp2 = 80;
   t.deepEqual(sink, [2, 10, 50, 80]);
-  t.is(test2.prop2.value, 80);
+});
+
+test("change A's property asynchronously and read the change", async (t) => {
+  class TestDest {
+    @select('TestSource.srcAsyncNumProp6') prop6;
+  }
+
+  const test1 = new TestSource();
+  const test2 = new TestDest();
+  t.is(test2.prop6, 42);
+  await test1.changeProp6Async();
+  t.is(test2.prop6, 345);
+});
+
+test("change A's property asynchronously and observe the change", (t) => {
+  class TestDest {
+    @observe('TestSource.srcAsyncNumProp6') prop6: Observable<any>;
+  }
+
+  const test1 = new TestSource();
+  const test2 = new TestDest();
+  let firstOccurance: boolean = true;
+  let v = new BehaviorSubject<any>(null);
+  test2.prop6.pipe(
+    take(2)
+  ).subscribe((val) => {
+    if (firstOccurance) {
+      t.is(val, 42);
+      firstOccurance = false;
+    } else {
+      t.is(val, 345);
+    }
+  });
+  test1.changeProp6Async()
+    .then(() => v.complete());
+  return v;
 });

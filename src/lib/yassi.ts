@@ -2,7 +2,7 @@ import {BehaviorSubject} from "rxjs";
 
 class StoreElement {
   value: any;
-  obeserver?: any; // TODO: replace to observer from rxJS or yours???
+  obeserver?: BehaviorSubject<any>;
 }
 
 const store = new Map<string, StoreElement>();
@@ -68,7 +68,7 @@ function overrideSelectPropertyDefinition(prototype: any,
       let element = store.get(yassiDescriptor.name);
       if(obsrv) {
         element.obeserver = element.obeserver || new BehaviorSubject<any>(element.value);
-        return element.obeserver;
+        return element.obeserver.asObservable();
       } else {
         return element ? element.value : undefined;
       }
