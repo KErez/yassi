@@ -4,7 +4,7 @@
 
 import test from 'ava';
 
-import {yassit} from './yassi';
+import {select, yassit} from './yassi';
 
 // @ts-ignore
 // class NoInstance {
@@ -13,25 +13,39 @@ import {yassit} from './yassi';
 // }
 
 class TestSource {
-  @yassit('Test.myProp1')
-  myProp1:number;
+  @yassit('Test.srcNumProp1')
+  numProp1: number;
 
-  @yassit('Test.myProp2')
-  myProp2: number = 2;
+  @yassit('Test.srcNumProp2')
+  numProp2: number = 2;
 
-  myProp3:number = 3;
+  numProp3: number = 3;
 
-  @yassit('Test.storeProp1')
-  storeProp1:string = 'hey there';
-
-  constructor() {
-    console.log('do nothing');
-  }
+  @yassit('Test.srcStringProp4')
+  strProp4: string = 'hey there';
 }
 
-test('simple yassit store', t => {
+test('Simple instance with Yassi but works as without', (t) => {
   const test1 = new TestSource();
-  t.is(test1.myProp1, undefined);
-  t.is(test1.myProp2, 2);
-  t.is(test1.myProp3, 3);
+  t.is(test1.numProp1, undefined);
+  t.is(test1.numProp2, 2);
+  t.is(test1.numProp3, 3);
+  t.is(test1.strProp4, 'hey there');
+});
+
+test("Simple Component A's number property is selected by Component B", (t) => {
+  class TestDest {
+    @select('Test.srcNumProp1') extProp1;
+    @select('Test.srcNumProp2') extProp2;
+    @select('Test.srcStringProp4') extProp3;
+
+    myProp1: number = 10;
+  }
+
+  const test1 = new TestSource();
+  const test2 = new TestDest();
+  t.is(test1.numProp1, test2.extProp1);
+  t.is(test1.numProp2, test2.extProp2);
+  t.is(test1.numProp3, 3);
+  t.is(test1.strProp4, test2.extProp3);
 });

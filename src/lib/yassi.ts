@@ -1,12 +1,14 @@
 const store = new Map<any, any>();
 
 class YassiPropertyDescriptor {
+  // The actual name of the property in the store
   name: string;
-  writable: boolean;
+  // TODO:If true, the property will be writable by any holder and not just by the parent/host component
+  fullAccess: boolean;
 
-  constructor(name, writable = false){
+  constructor(name, fullAccess = false) {
     this.name = name;
-    this.writable = writable;
+    this.fullAccess = fullAccess;
   }
 }
 
@@ -20,43 +22,58 @@ class YassiPropertyDescriptor {
 function overridePropertyDefinition(prototype: any, key: string, yassiDescriptor: YassiPropertyDescriptor) {
   // TODO: if yassiDescriptor.name is not valid or is already in store throw exception with possible reason i.e:
   //  'Property of such name already exists in the store. Maybe you should declare it on a shared component or service
-	Object.defineProperty(prototype, key, {
-		set(firstValue: any) {
-			Object.defineProperty(this, key, {
-				get() {
-				  // TODO: remove this getter when you start to store by reference
-					return store.get(yassiDescriptor.name);
-				},
-				set(value: any) {
-				  if(yassiDescriptor.writable) {
-				    // TODO: make the property writable from any place and not just from the owner
+  Object.defineProperty(prototype, key, {
+    set(firstValue: any) {
+      Object.defineProperty(this, key, {
+        get() {
+          // TODO: remove this getter when you start to store by reference
+          return store.get(yassiDescriptor.name);
+        },
+        set(value: any) {
+          if (yassiDescriptor.fullAccess) {
+            // TODO: make the property writable from any place and not just from the owner
           }
-				  store.set(yassiDescriptor.name, value);
-				},
-				enumerable: true,
-			});
-			this[key] = firstValue;
-		},
-		enumerable: true,
-		configurable: true,
-	});
+          store.set(yassiDescriptor.name, value);
+        },
+        enumerable: true,
+      });
+      this[key] = firstValue;
+    },
+    enumerable: true,
+    configurable: true,
+  });
+}
+
+function overrideSelectPropertyDefinition(prototype: any, key: string, yassiDescriptor: YassiPropertyDescriptor) {
+  Object.defineProperty(prototype, key, {
+    get() {
+      return store.get(yassiDescriptor.name);
+    }
+  });
 }
 
 // @ts-ignore
-let yidCounter :number = 0; // yassi id counter
+let yidCounter: number = 0; // yassi id counter
 // yid -> yassi id
 export function yassit(name: string) {
-  if(!name || name.length <= 0) {
+  if (!name || name.length <= 0) {
     throw new Error('You must provide property name when using yassit()');
   }
   // TODO: provide property descriptor from strategy class (i.e. allow different type of property storing
-  return function(target: any, key: string) {
+  return function (target: any, key: string) {
     overridePropertyDefinition(target, key, new YassiPropertyDescriptor(name));
-  }
+  };
 }
 
-export function select(key) {
+export function select(name) {
   // TODO: Change to copy the object when you start to store by reference
   // TODO: Also check the type before copy (for example string as immutable does not need to be cloned)
-  return store.get(key);
+
+  // TODO: You need to call overrideProperyDefinition but without a setter (unless fullAccess is defined) which mean you need to store the descriptor in the store as well
+  if (!name) {
+    throw new Error('Missing key.');
+  }
+  return function (target: any, key: string) {
+    overrideSelectPropertyDefinition(target, key, new YassiPropertyDescriptor(name))
+  };
 }
