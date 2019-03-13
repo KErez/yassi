@@ -49,6 +49,7 @@ function overrideSelectPropertyDefinition(prototype: any, key: string, yassiDesc
     get() {
       return store.get(yassiDescriptor.name);
     }
+    // We don't create setter since we want selected properties to behave like readonly properties
   });
 }
 

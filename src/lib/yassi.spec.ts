@@ -73,3 +73,19 @@ test("select A's property from obj B, change it and read it again. Expect to see
   test1.numProp1 = 1000;
   t.is(test2.prop1, 1000);
 });
+
+test('change to a selected property throw error', (t) => {
+  class TestDest {
+    @select('TestSource.srcNumProp2') prop2;
+  }
+
+  // @ts-ignore
+  const test2 = new TestDest();
+  t.is(test2.prop2, 2);
+  try {
+    test2.prop2 = 1000;
+  } catch(e) {
+    t.is(e.message, 'Cannot set property prop2 of #<TestDest> which has only a getter');
+  }
+  t.is(test2.prop2, 2);
+});
