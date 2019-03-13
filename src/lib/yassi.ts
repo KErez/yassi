@@ -1,4 +1,11 @@
-const store = new Map<any, any>();
+import {BehaviorSubject} from "rxjs";
+
+class StoreElement {
+  value: any;
+  obeserver?: any; // TODO: replace to observer from rxJS or yours???
+}
+
+const store = new Map<string, StoreElement>();
 
 class YassiPropertyDescriptor {
   // The actual name of the property in the store
@@ -19,7 +26,9 @@ class YassiPropertyDescriptor {
  *  Now each time an instance is called the setter is called and set a new setter and getter definition
  * Thanks to Romke Van Der Meulen - https://romkevandermeulen.nl/2018/01/24/typescript-property-decorators.html
  */
-function overridePropertyDefinition(prototype: any, key: string, yassiDescriptor: YassiPropertyDescriptor) {
+function overridePropertyDefinition(prototype: any,
+                                    key: string,
+                                    yassiDescriptor: YassiPropertyDescriptor) {
   // TODO: if yassiDescriptor.name is not valid or is already in store throw exception with possible reason i.e:
   //  'Property of such name already exists in the store. Maybe you should declare it on a shared component or service
   Object.defineProperty(prototype, key, {
@@ -27,13 +36,19 @@ function overridePropertyDefinition(prototype: any, key: string, yassiDescriptor
       Object.defineProperty(this, key, {
         get() {
           // TODO: remove this getter when you start to store by reference
-          return store.get(yassiDescriptor.name);
+          let element = store.get(yassiDescriptor.name);
+          return element ? element.value : undefined;
         },
         set(value: any) {
           if (yassiDescriptor.fullAccess) {
             // TODO: make the property writable from any place and not just from the owner
           }
-          store.set(yassiDescriptor.name, value);
+          let element = store.get(yassiDescriptor.name) || new StoreElement();
+          element.value = value;
+          store.set(yassiDescriptor.name, element);
+          if(element.obeserver) {
+            element.obeserver.next(element.value);
+          }
         },
         enumerable: true,
       });
@@ -44,21 +59,27 @@ function overridePropertyDefinition(prototype: any, key: string, yassiDescriptor
   });
 }
 
-function overrideSelectPropertyDefinition(prototype: any, key: string, yassiDescriptor: YassiPropertyDescriptor) {
+function overrideSelectPropertyDefinition(prototype: any,
+                                          key: string,
+                                          yassiDescriptor: YassiPropertyDescriptor,
+                                          obsrv: boolean = false) {
   Object.defineProperty(prototype, key, {
     get() {
-      return store.get(yassiDescriptor.name);
+      let element = store.get(yassiDescriptor.name);
+      if(obsrv) {
+        element.obeserver = element.obeserver || new BehaviorSubject<any>(element.value);
+        return element.obeserver;
+      } else {
+        return element ? element.value : undefined;
+      }
     }
     // We don't create setter since we want selected properties to behave like readonly properties
   });
 }
 
-// @ts-ignore
-let yidCounter: number = 0; // yassi id counter
-// yid -> yassi id
 export function yassit(name: string) {
   if (!name || name.length <= 0) {
-    throw new Error('You must provide property name when using yassit()');
+    throw new Error('You must provide property name when using @yassit()');
   }
   // TODO: provide property descriptor from strategy class (i.e. allow different type of property storing
   return function (target: any, key: string) {
@@ -67,14 +88,19 @@ export function yassit(name: string) {
 }
 
 export function select(name) {
-  // TODO: Change to copy the object when you start to store by reference
-  // TODO: Also check the type before copy (for example string as immutable does not need to be cloned)
-
-  // TODO: You need to call overrideProperyDefinition but without a setter (unless fullAccess is defined) which mean you need to store the descriptor in the store as well
   if (!name) {
-    throw new Error('Missing key.');
+    throw new Error('Missing key. You must provide name parameter when using @select()');
   }
   return function (target: any, key: string) {
     overrideSelectPropertyDefinition(target, key, new YassiPropertyDescriptor(name))
+  };
+}
+
+export function observe(name) {
+  if (!name) {
+    throw new Error('Missing key. You must provide name parameter when using @observe()');
+  }
+  return function (target: any, key: string) {
+    overrideSelectPropertyDefinition(target, key, new YassiPropertyDescriptor(name), true)
   };
 }
