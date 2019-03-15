@@ -3,10 +3,8 @@
 
 
 import test from 'ava';
-import {BehaviorSubject, Observable} from "rxjs";
-import {take} from "rxjs/operators";
 
-import {observe, select, yassit} from './yassi';
+import {observe, registerMiddleware, select, yassit} from './yassi';
 
 // @ts-ignore
 // class NoInstance {
@@ -34,14 +32,21 @@ class TestSource {
   @yassit('TestSource.srcAsyncNumProp6')
   asyncProp6: number = 42;
 
+  @yassit('TestSource.srcAsyncNumProp7')
+  asyncProp7: number = 314;
+
   changeProp6Async() {
     let promise = new Promise((resolve) => {
       setTimeout(() => {
         this.asyncProp6 = 345;
         resolve();
-      }, 500);
+      }, 200);
     });
     return promise;
+  }
+
+  changeProp7Async() {
+    setTimeout(() => this.asyncProp7 = 1414, 200);
   }
 }
 
@@ -183,26 +188,18 @@ test("change A's property asynchronously and read the change", async (t) => {
   t.is(test2.prop6, 345);
 });
 
-test("change A's property asynchronously and observe the change", (t) => {
-  class TestDest {
-    @observe('TestSource.srcAsyncNumProp6') prop6: Observable<any>;
-  }
-
+test('registerMiddleware for before yassit', (t) => {
+  registerMiddleware('yassit', 'before');
   const test1 = new TestSource();
-  const test2 = new TestDest();
-  let firstOccurance: boolean = true;
-  let v = new BehaviorSubject<any>(null);
-  test2.prop6.pipe(
-    take(2)
-  ).subscribe((val) => {
-    if (firstOccurance) {
-      t.is(val, 42);
-      firstOccurance = false;
-    } else {
-      t.is(val, 345);
-    }
-  });
-  test1.changeProp6Async()
-    .then(() => v.complete());
-  return v;
+  t.is(test1.numProp2, 2);
+  test1.numProp2 = 444;
+  t.log('We should see the number 444 printed to console.');
+});
+
+test('register middleware for after yassit', (t) => {
+  registerMiddleware('yassit', 'after',
+    (proto: any, key: string, val: any) => console.log(`-------${proto.constructor.name}.${key}=${val}-------`));
+  const test1 = new TestSource();
+  test1.numProp3 = 1234;
+  t.is(test1.numProp3, 1234);
 });

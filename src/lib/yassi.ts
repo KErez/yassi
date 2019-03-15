@@ -7,6 +7,23 @@ class StoreElement {
 
 const store = new Map<string, StoreElement>();
 
+const beforeYassitMiddleware = [];
+const afterYassitMiddleware = [];
+const beforeSelectingMiddleware = [];
+const afterSelectingMiddleware = [];
+
+function DEFAULT_LOGGER_MIDDLEWARE(prototype: any, key: string, value: any) {
+  let msg;
+  if (prototype) {
+    if (prototype.constructor && prototype.constructor.name) {
+      msg = `${prototype.constructor.name}.${key}=${JSON.stringify(value)}`;
+    } else {
+      msg = `${prototype}.${key}=${JSON.stringify(value)}`;
+    }
+  }
+  console.log(msg);
+}
+
 class YassiPropertyDescriptor {
   // The actual name of the property in the store
   name: string;
@@ -40,15 +57,17 @@ function overridePropertyDefinition(prototype: any,
           return element ? element.value : undefined;
         },
         set(value: any) {
+          executeBeforeYassitMiddleware(prototype, key, value);
           if (yassiDescriptor.fullAccess) {
             // TODO: make the property writable from any place and not just from the owner
           }
           let element = store.get(yassiDescriptor.name) || new StoreElement();
           element.value = value;
           store.set(yassiDescriptor.name, element);
-          if(element.obeserver) {
+          if (element.obeserver) {
             element.obeserver.next(element.value);
           }
+          executeAfterYassitMiddleware(prototype, key, element.value);
         },
         enumerable: true,
       });
@@ -65,8 +84,10 @@ function overrideSelectPropertyDefinition(prototype: any,
                                           obsrv: boolean = false) {
   Object.defineProperty(prototype, key, {
     get() {
+      executeBeforeSelectMiddleware(prototype, key)
       let element = store.get(yassiDescriptor.name);
-      if(obsrv) {
+      executeAfterSelectMiddleware(prototype, key, element ? element.value : null);
+      if (obsrv) {
         element.obeserver = element.obeserver || new BehaviorSubject<any>(element.value);
         return element.obeserver.asObservable();
       } else {
@@ -103,4 +124,56 @@ export function observe(name) {
   return function (target: any, key: string) {
     overrideSelectPropertyDefinition(target, key, new YassiPropertyDescriptor(name), true)
   };
+}
+
+export function registerMiddleware(action: string, position: string, fn: (proto, key, val) => void = null) {
+  fn = fn || DEFAULT_LOGGER_MIDDLEWARE;
+  let arrayToSearch;
+  switch (action) {
+    case 'yassit':
+      arrayToSearch = (position === 'after') ? afterYassitMiddleware : beforeYassitMiddleware;
+      break;
+    case 'observe':
+    case 'select':
+      arrayToSearch = (position === 'after') ? afterSelectingMiddleware : beforeSelectingMiddleware;
+      break;
+    default:
+      return;
+  }
+
+  for (let item of arrayToSearch) {
+    // prevent duplication
+    if (item === fn) {
+      return;
+    }
+  }
+  arrayToSearch.push(fn);
+}
+
+// @ts-ignore
+function executeBeforeYassitMiddleware(prototype: any, key: string, value: any) {
+  for (let item of beforeYassitMiddleware) {
+    item(prototype, key, value);
+  }
+}
+
+// @ts-ignore
+function executeAfterYassitMiddleware(prototype: any, key: string, value: any) {
+  for (let item of afterYassitMiddleware) {
+    item(prototype, key, value);
+  }
+}
+
+// @ts-ignore
+function executeBeforeSelectMiddleware(prototype: any, key: string) {
+  for (let item of beforeSelectingMiddleware) {
+    item(prototype, key);
+  }
+}
+
+// @ts-ignore
+function executeAfterSelectMiddleware(prototype: any, key: string, value: any) {
+  for (let item of afterSelectingMiddleware) {
+    item(prototype, key, value);
+  }
 }
