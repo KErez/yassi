@@ -1,11 +1,7 @@
 import {BehaviorSubject} from "rxjs";
 
-class StoreElement {
-  value: any;
-  obeserver?: BehaviorSubject<any>;
-}
+import {StoreElement, yassiStore} from "./store";
 
-const store = new Map<string, StoreElement>();
 
 const beforeYassitMiddleware = [];
 const afterYassitMiddleware = [];
@@ -13,15 +9,13 @@ const beforeSelectingMiddleware = [];
 const afterSelectingMiddleware = [];
 
 function DEFAULT_LOGGER_MIDDLEWARE(prototype: any, key: string, value: any) {
-  let msg;
   if (prototype) {
     if (prototype.constructor && prototype.constructor.name) {
-      msg = `${prototype.constructor.name}.${key}=${JSON.stringify(value)}`;
+      console.log(`${prototype.constructor.name}.${key}=${JSON.stringify(value)}`);
     } else {
-      msg = `${prototype}.${key}=${JSON.stringify(value)}`;
+      console.log(`${prototype}.${key}=${JSON.stringify(value)}`);
     }
   }
-  console.log(msg);
 }
 
 class YassiPropertyDescriptor {
@@ -46,14 +40,15 @@ class YassiPropertyDescriptor {
 function overridePropertyDefinition(prototype: any,
                                     key: string,
                                     yassiDescriptor: YassiPropertyDescriptor) {
-  // TODO: if yassiDescriptor.name is not valid or is already in store throw exception with possible reason i.e:
-  //  'Property of such name already exists in the store. Maybe you should declare it on a shared component or service
+  if (yassiStore.has(yassiDescriptor.name)) {
+    throw new Error(`Store already has entry with name ${yassiDescriptor.name}`)
+  }
   Object.defineProperty(prototype, key, {
     set(firstValue: any) {
       Object.defineProperty(this, key, {
         get() {
           // TODO: remove this getter when you start to store by reference
-          let element = store.get(yassiDescriptor.name);
+          let element = yassiStore.get(yassiDescriptor.name);
           return element ? element.value : undefined;
         },
         set(value: any) {
@@ -61,9 +56,9 @@ function overridePropertyDefinition(prototype: any,
           if (yassiDescriptor.fullAccess) {
             // TODO: make the property writable from any place and not just from the owner
           }
-          let element = store.get(yassiDescriptor.name) || new StoreElement();
+          let element = yassiStore.get(yassiDescriptor.name) || new StoreElement();
           element.value = value;
-          store.set(yassiDescriptor.name, element);
+          yassiStore.set(yassiDescriptor.name, element);
           if (element.obeserver) {
             element.obeserver.next(element.value);
           }
@@ -85,7 +80,7 @@ function overrideSelectPropertyDefinition(prototype: any,
   Object.defineProperty(prototype, key, {
     get() {
       executeBeforeSelectMiddleware(prototype, key)
-      let element = store.get(yassiDescriptor.name);
+      let element = yassiStore.get(yassiDescriptor.name);
       executeAfterSelectMiddleware(prototype, key, element ? element.value : null);
       if (obsrv) {
         element.obeserver = element.obeserver || new BehaviorSubject<any>(element.value);
@@ -109,7 +104,7 @@ export function yassit(name: string) {
 }
 
 export function select(name) {
-  if (!name) {
+  if (!name || name.length <= 0) {
     throw new Error('Missing key. You must provide name parameter when using @select()');
   }
   return function (target: any, key: string) {
@@ -118,7 +113,7 @@ export function select(name) {
 }
 
 export function observe(name) {
-  if (!name) {
+  if (!name || name.length <= 0) {
     throw new Error('Missing key. You must provide name parameter when using @observe()');
   }
   return function (target: any, key: string) {

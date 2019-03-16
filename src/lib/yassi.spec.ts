@@ -188,6 +188,16 @@ test("change A's property asynchronously and read the change", async (t) => {
   t.is(test2.prop6, 345);
 });
 
+test('yassit on existing entry name throw exception', (t) => {
+  try {
+    // @ts-ignore
+    class TesetDest {
+      @yassit('TestSource.srcNumProp2') illegalPropDecorator;
+    }
+  } catch (e) {
+    t.is(e.message, 'Store already has entry with name TestSource.srcNumProp2');
+  }
+});
 test('registerMiddleware for before yassit', (t) => {
   registerMiddleware('yassit', 'before');
   const test1 = new TestSource();
