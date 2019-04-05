@@ -4,7 +4,9 @@
 
 import test from 'ava';
 
+import {BehaviorSubject} from "rxjs";
 import {observe, registerMiddleware, select, yassit} from './yassi';
+import {yassiStore} from "./store";
 
 // @ts-ignore
 // class NoInstance {
@@ -34,6 +36,9 @@ class TestSource {
 
   @yassit('TestSource.srcAsyncNumProp7')
   asyncProp7: number = 314;
+
+  @yassit('TestSource.srcAsyncObjProp8')
+  asyncProp8: any;
 
   changeProp6Async() {
     let promise = new Promise((resolve) => {
@@ -198,6 +203,38 @@ test('yassit on existing entry name throw exception', (t) => {
     t.is(e.message, 'Store already has entry with name TestSource.srcNumProp2');
   }
 });
+
+test('observe object were its property changes using yassi.touch', (t) => {
+  class TestDest {
+    @observe('TestSource.srcAsyncObjProp8') prop8;
+  }
+
+  const test1 = new TestSource();
+  const test2 = new TestDest();
+
+  const expectedVals = [undefined, {inner1: 5}, {inner1: 8}];
+  let lastValidatedValue: any;
+  let v = new BehaviorSubject<any>(null);
+  test2.prop8.subscribe((val) => {
+    lastValidatedValue = Object.assign({}, val);
+    t.deepEqual(val, expectedVals.shift());
+    if (expectedVals.length === 0) {
+      v.complete();
+    }
+  });
+  // Note that changing the source's property does not trigger the observable.
+  // Only when you call ysInvalidate()
+  test1.asyncProp8 = {
+    inner1: 5
+  };
+  t.deepEqual(lastValidatedValue, {inner1: 5});
+  test1.asyncProp8.inner1 = 8;
+  t.deepEqual(lastValidatedValue, {inner1: 5});
+  yassiStore.touch('TestSource.srcAsyncObjProp8');
+  return v;
+
+});
+
 test('registerMiddleware for before yassit', (t) => {
   registerMiddleware('yassit', 'before');
   const test1 = new TestSource();

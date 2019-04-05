@@ -1,6 +1,6 @@
 import {BehaviorSubject} from "rxjs";
 
-import {StoreElement, yassiStore} from "./store";
+import {ElementStatus, StoreElement, yassiStore} from "./store";
 
 
 const beforeYassitMiddleware = [];
@@ -43,11 +43,12 @@ function overridePropertyDefinition(prototype: any,
   if (yassiStore.has(yassiDescriptor.name)) {
     throw new Error(`Store already has entry with name ${yassiDescriptor.name}`)
   }
+  yassiStore.ensureUniqueuness(yassiDescriptor.name);
+
   Object.defineProperty(prototype, key, {
     set(firstValue: any) {
       Object.defineProperty(this, key, {
         get() {
-          // TODO: remove this getter when you start to store by reference
           let element = yassiStore.get(yassiDescriptor.name);
           return element ? element.value : undefined;
         },
@@ -57,11 +58,10 @@ function overridePropertyDefinition(prototype: any,
             // TODO: make the property writable from any place and not just from the owner
           }
           let element = yassiStore.get(yassiDescriptor.name) || new StoreElement();
+          element.status = ElementStatus.ACTIVE;
           element.value = value;
           yassiStore.set(yassiDescriptor.name, element);
-          if (element.obeserver) {
-            element.obeserver.next(element.value);
-          }
+          element.obeserver.next(element.value);
           executeAfterYassitMiddleware(prototype, key, element.value);
         },
         enumerable: true,
@@ -79,12 +79,17 @@ function overrideSelectPropertyDefinition(prototype: any,
                                           obsrv: boolean = false) {
   Object.defineProperty(prototype, key, {
     get() {
-      executeBeforeSelectMiddleware(prototype, key)
+      executeBeforeSelectMiddleware(prototype, key);
       let element = yassiStore.get(yassiDescriptor.name);
       executeAfterSelectMiddleware(prototype, key, element ? element.value : null);
       if (obsrv) {
-        element.obeserver = element.obeserver || new BehaviorSubject<any>(element.value);
-        return element.obeserver.asObservable();
+        let elem = element || new StoreElement(ElementStatus.PENDING);
+        elem.obeserver = elem.obeserver || new BehaviorSubject<any>(elem.value);
+        if(!element) {
+          // A client may observe a key that was not set yet.
+          yassiStore.set(yassiDescriptor.name, elem);
+        }
+        return elem.obeserver.asObservable();
       } else {
         return element ? element.value : undefined;
       }
