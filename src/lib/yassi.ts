@@ -177,3 +177,24 @@ function executeAfterSelectMiddleware(prototype: any, key: string, value: any) {
     item(prototype, key, value);
   }
 }
+
+/*
+Add the following methods to the object you are yassit.
+In general they are there to replace the assignment operator (=) which user usually use to assign a property in an object
+
+@yassiTouch - instead of ysUpdate. It will trigger "next" on the object's observable
+@yassiUpdate(path:string, value:any) - will update the property at path with the given value
+@yassiUpdate(entries: Array<Array<string, any>>) - same as above but with one or more path+value couples
+@yassiAssign(obj: any) - replace the current object with this new one. Full assignment
+ */
+
+/*
+Why not recursively overridePropertyDefinition when it is an object/array??!
+You should create a benchmark between such solutions where the object size
+  (vertically) and depth grows incrementally
+Benchmark both creation time of objects and then access and change time in
+  conjunction with yassiTouch/yassiUpdate/yassiAssign
+
+The benefit is it works is that it will make yassiTouch/yassiUpdate/yassiAssign
+  obsolete and the user can use the core js functionality
+ */
