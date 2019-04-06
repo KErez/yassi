@@ -46,6 +46,10 @@ class TestSource {
   @yassit('TestSource.srcAsyncObjProp10')
   asyncProp10: any;
 
+  @yassit('TestSource.srcAsyncObjProp11')
+  asyncProp11: any;
+
+
   changeProp6Async() {
     let promise = new Promise((resolve) => {
       setTimeout(() => {
@@ -302,6 +306,38 @@ test('Change an uninitialized observed object', (t) => {
   test1.asyncProp10 = {
     prop4: 42
   };
+  return v;
+});
+
+test('Use update to change a stored element', (t) => {
+  class TestDest {
+    @observe('TestSource.srcAsyncObjProp11') prop11;
+  }
+
+  const test1 = new TestSource();
+  const test2 = new TestDest();
+
+  const expectedVals = [
+    undefined,
+    {prop1: 'bla'},
+    {prop3: 'other'},
+    {prop4: 42},
+  ];
+  let v = new BehaviorSubject<any>(null);
+  setTimeout(() => {
+    test2.prop11.subscribe((val) => {
+      t.deepEqual(val, expectedVals.shift());
+      if (expectedVals.length === 0) {
+        v.complete();
+      }
+    });
+    test1.asyncProp11 = {
+      prop1: 'bla'
+    };
+    yassiStore.update('TestSource.srcAsyncObjProp11', {prop3: 'other'});
+    yassiStore.update('TestSource.srcAsyncObjProp11', {prop4: 42});
+  },10);
+
   return v;
 });
 

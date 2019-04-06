@@ -61,7 +61,7 @@ function overridePropertyDefinition(prototype: any,
           element.status = ElementStatus.ACTIVE;
           element.value = value;
           yassiStore.set(yassiDescriptor.name, element);
-          element.obeserver.next(element.value);
+          element.observer.next(element.value);
           executeAfterYassitMiddleware(prototype, key, element.value);
         },
         enumerable: true,
@@ -84,12 +84,12 @@ function overrideSelectPropertyDefinition(prototype: any,
       executeAfterSelectMiddleware(prototype, key, element ? element.value : null);
       if (obsrv) {
         let elem = element || new StoreElement(ElementStatus.PENDING);
-        elem.obeserver = elem.obeserver || new BehaviorSubject<any>(elem.value);
+        elem.observer = elem.observer || new BehaviorSubject<any>(elem.value);
         if(!element) {
           // A client may observe a key that was not set yet.
           yassiStore.set(yassiDescriptor.name, elem);
         }
-        return elem.obeserver.asObservable();
+        return elem.observer.asObservable();
       } else {
         return element ? element.value : undefined;
       }
@@ -177,16 +177,6 @@ function executeAfterSelectMiddleware(prototype: any, key: string, value: any) {
     item(prototype, key, value);
   }
 }
-
-/*
-Add the following methods to the object you are yassit.
-In general they are there to replace the assignment operator (=) which user usually use to assign a property in an object
-
-@yassiTouch - instead of ysUpdate. It will trigger "next" on the object's observable
-@yassiUpdate(path:string, value:any) - will update the property at path with the given value
-@yassiUpdate(entries: Array<Array<string, any>>) - same as above but with one or more path+value couples
-@yassiAssign(obj: any) - replace the current object with this new one. Full assignment
- */
 
 /*
 Why not recursively overridePropertyDefinition when it is an object/array??!
