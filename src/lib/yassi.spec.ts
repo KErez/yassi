@@ -4,6 +4,8 @@
 
 import test from 'ava';
 
+import {BehaviorSubject} from "rxjs";
+import {yassiStore} from "./store";
 import {observe, registerMiddleware, select, yassit} from './yassi';
 
 // @ts-ignore
@@ -34,6 +36,19 @@ class TestSource {
 
   @yassit('TestSource.srcAsyncNumProp7')
   asyncProp7: number = 314;
+
+  @yassit('TestSource.srcAsyncObjProp8')
+  asyncProp8: any;
+
+  @yassit('TestSource.srcAsyncObjProp9')
+  asyncProp9: any = {prop1: 1, prop2: 2};
+
+  @yassit('TestSource.srcAsyncObjProp10')
+  asyncProp10: any;
+
+  @yassit('TestSource.srcAsyncObjProp11')
+  asyncProp11: any;
+
 
   changeProp6Async() {
     let promise = new Promise((resolve) => {
@@ -186,6 +201,144 @@ test("change A's property asynchronously and read the change", async (t) => {
   t.is(test2.prop6, 42);
   await test1.changeProp6Async();
   t.is(test2.prop6, 345);
+});
+
+test('yassit on existing entry name throw exception', (t) => {
+  try {
+    // @ts-ignore
+    class TesetDest {
+      @yassit('TestSource.srcNumProp2') illegalPropDecorator;
+    }
+  } catch (e) {
+    t.is(e.message, 'Store already has entry with name TestSource.srcNumProp2');
+  }
+});
+
+test('observe object were its property changes using yassi.touch', (t) => {
+  class TestDest {
+    @observe('TestSource.srcAsyncObjProp8') prop8;
+  }
+
+  const test1 = new TestSource();
+  const test2 = new TestDest();
+
+  const expectedVals = [undefined, {inner1: 5}, {inner1: 8}];
+  let lastValidatedValue: any;
+  let v = new BehaviorSubject<any>(null);
+  test2.prop8.subscribe((val) => {
+    lastValidatedValue = Object.assign({}, val);
+    t.deepEqual(val, expectedVals.shift());
+    if (expectedVals.length === 0) {
+      v.complete();
+    }
+  });
+  // Note that changing the source's property does not trigger the observable.
+  // Only when you call touch()
+  test1.asyncProp8 = {
+    inner1: 5
+  };
+  t.deepEqual(lastValidatedValue, {inner1: 5});
+  test1.asyncProp8.inner1 = 8;
+  t.deepEqual(lastValidatedValue, {inner1: 5});
+  yassiStore.touch('TestSource.srcAsyncObjProp8');
+  return v;
+});
+
+
+test('Change an initialized observed object', (t) => {
+  class TestDest {
+    @observe('TestSource.srcAsyncObjProp9') prop9;
+  }
+
+  const test1 = new TestSource();
+  const test2 = new TestDest();
+
+  const expectedVals = [
+    {prop1: 1, prop2: 2},
+    {prop3: 'other'},
+    {prop4: 42},
+  ];
+  let v = new BehaviorSubject<any>(null);
+  setTimeout(() => {
+    test2.prop9.subscribe((val) => {
+      t.deepEqual(val, expectedVals.shift());
+      if (expectedVals.length === 0) {
+        v.complete();
+      }
+    });
+    test1.asyncProp9 = {
+      prop3: 'other'
+    };
+    test1.asyncProp9 = {
+      prop4: 42
+    };
+  },10);
+  return v;
+});
+
+test('Change an uninitialized observed object', (t) => {
+  class TestDest {
+    @observe('TestSource.srcAsyncObjProp10') prop10;
+  }
+
+  const test1 = new TestSource();
+  const test2 = new TestDest();
+
+  const expectedVals = [
+    undefined,
+    {prop1: 'bla'},
+    {prop3: 'other'},
+    {prop4: 42},
+  ];
+  let v = new BehaviorSubject<any>(null);
+  test2.prop10.subscribe((val) => {
+    t.deepEqual(val, expectedVals.shift());
+    if (expectedVals.length === 0) {
+      v.complete();
+    }
+  });
+  test1.asyncProp10 = {
+    prop1: 'bla'
+  };
+  test1.asyncProp10 = {
+    prop3: 'other'
+  };
+  test1.asyncProp10 = {
+    prop4: 42
+  };
+  return v;
+});
+
+test('Use update to change a stored element', (t) => {
+  class TestDest {
+    @observe('TestSource.srcAsyncObjProp11') prop11;
+  }
+
+  const test1 = new TestSource();
+  const test2 = new TestDest();
+
+  const expectedVals = [
+    undefined,
+    {prop1: 'bla'},
+    {prop3: 'other'},
+    {prop4: 42},
+  ];
+  let v = new BehaviorSubject<any>(null);
+  setTimeout(() => {
+    test2.prop11.subscribe((val) => {
+      t.deepEqual(val, expectedVals.shift());
+      if (expectedVals.length === 0) {
+        v.complete();
+      }
+    });
+    test1.asyncProp11 = {
+      prop1: 'bla'
+    };
+    yassiStore.update('TestSource.srcAsyncObjProp11', {prop3: 'other'});
+    yassiStore.update('TestSource.srcAsyncObjProp11', {prop4: 42});
+  },10);
+
+  return v;
 });
 
 test('registerMiddleware for before yassit', (t) => {
