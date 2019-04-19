@@ -61,11 +61,10 @@ typings/
 .next
 
 .vscode
-build
 .idea
 
 node_modules
-build
+# build
 test
 src/**.js
 .idea/*
