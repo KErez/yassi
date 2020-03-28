@@ -1,6 +1,6 @@
 {
   "name": "yassi",
-  "version": "0.7.3",
+  "version": "0.7.4",
   "description": "Yet another simple store implementation",
   "main": "build/main/index.js",
   "typings": "build/main/index.d.ts",
