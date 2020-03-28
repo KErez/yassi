@@ -49,6 +49,9 @@ class TestSource {
   @yassit('TestSource.srcAsyncObjProp11')
   asyncProp11: any;
 
+  @yassit('TestSource.srcArrayProp12')
+  arrayProp12: any[];
+
 
   changeProp6Async() {
     let promise = new Promise((resolve) => {
@@ -102,7 +105,7 @@ test('select property that does not exists in the store and expect undefined fol
   t.is(test2.notFoundProp, undefined);
 });
 
-test("select A's property from obj B, change it and read it again. Expect to see the change", (t) => {
+test("select A's property from obj B, change it on A and read it again on B. Expect to see the change", (t) => {
   class TestDest1 {
     @select('TestSource.srcNumProp1') prop1;
   }
@@ -212,6 +215,27 @@ test('yassit on existing entry name throw exception', (t) => {
   } catch (e) {
     t.is(e.message, 'Store already has entry with name TestSource.srcNumProp2');
   }
+});
+
+test('observe an array changes', (t) => {
+  class TestDest {
+    @observe('TestSource.srcArrayProp12') prop12;
+  }
+
+  const test1 = new TestSource();
+  const test2 = new TestDest();
+  const expectedValues = [undefined, [1], [1,2]];
+  let v = new BehaviorSubject<any>(null);
+  test2.prop12.subscribe((val: any[]) => {
+    t.deepEqual(val, expectedValues.shift());
+    if (expectedValues.length === 0) {
+      v.complete();
+    }
+  });
+  test1.arrayProp12 = [];
+  test1.arrayProp12.push(1);
+  test1.arrayProp12.push(2);
+  return v;
 });
 
 test('observe object were its property changes using yassi.touch', (t) => {

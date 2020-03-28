@@ -45,24 +45,27 @@ function overridePropertyDefinition(prototype: any,
   }
   yassiStore.ensureUniqueuness(yassiDescriptor.name);
 
+  /**
+   * prototype - The constructor of the class that declared yassit on a property
+   * key - the property name that yassit was attached too
+   */
   Object.defineProperty(prototype, key, {
-    set(firstValue: any) {
+    set(firstValue: any) { // This set called on first instantiation of the class
       Object.defineProperty(this, key, {
+        // this - the instance of a 'prototype' class
         get() {
-          let element = yassiStore.get(yassiDescriptor.name);
-          return element ? element.value : undefined;
+          let elem = yassiStore.get(yassiDescriptor.name);
+          return elem ? elem.value : undefined;
         },
-        set(value: any) {
+        set(value: any) { // Here we override the above set
           executeBeforeYassitMiddleware(prototype, key, value);
-          if (yassiDescriptor.fullAccess) {
-            // TODO: make the property writable from any place and not just from the owner
+          let elem = yassiStore.get(yassiDescriptor.name) || new StoreElement();
+          setElementValueHandler(elem, value, prototype, key);
+          yassiStore.set(yassiDescriptor.name, elem);
+          if (elem.value && !Array.isArray(elem.value)){
+            elem.observer.next(elem.value);
           }
-          let element = yassiStore.get(yassiDescriptor.name) || new StoreElement();
-          element.status = ElementStatus.ACTIVE;
-          element.value = value;
-          yassiStore.set(yassiDescriptor.name, element);
-          element.observer.next(element.value);
-          executeAfterYassitMiddleware(prototype, key, element.value);
+          executeAfterYassitMiddleware(prototype, key, elem.value);
         },
         enumerable: true,
       });
@@ -73,15 +76,48 @@ function overridePropertyDefinition(prototype: any,
   });
 }
 
+function setElementValueHandler(element: StoreElement, value: any, prototype: any, key: string) {
+  if (Array.isArray(value)) {
+    // a proxy for our array
+    element.value = new Proxy(value, {
+      // apply(target: any, thisArg, argumentList?: any) {
+      //   executeBeforeYassitMiddleware(prototype, key, value);
+      //   const result = thisArg[target].apply(this, argumentList);
+      //   element.observer.next(element.value);
+      //   executeAfterYassitMiddleware(prototype, key, element.value);
+      //   return result;
+      // },
+      // @ts-ignore
+      deleteProperty(target, property) {
+        return true;
+      },
+      // @ts-ignore
+      set(target, property, val, receiver) {
+        if (!Number.isInteger(parseInt(property as string, 10))) {
+          target[property] = val;
+          return true;
+        }
+        executeBeforeYassitMiddleware(prototype, key, value);
+        target[property] = val;
+        element.observer.next(element.value);
+        executeAfterYassitMiddleware(prototype, key, element.value);
+        return true;
+      }
+    });
+  } else {
+    element.value = value;
+  }
+}
+
 function overrideSelectPropertyDefinition(prototype: any,
                                           key: string,
                                           yassiDescriptor: YassiPropertyDescriptor,
                                           obsrv: boolean = false) {
   Object.defineProperty(prototype, key, {
     get() {
+      let result: any;
       executeBeforeSelectMiddleware(prototype, key);
       let element = yassiStore.get(yassiDescriptor.name);
-      executeAfterSelectMiddleware(prototype, key, element ? element.value : null);
       if (obsrv) {
         let elem = element || new StoreElement(ElementStatus.PENDING);
         elem.observer = elem.observer || new BehaviorSubject<any>(elem.value);
@@ -89,10 +125,12 @@ function overrideSelectPropertyDefinition(prototype: any,
           // A client may observe a key that was not set yet.
           yassiStore.set(yassiDescriptor.name, elem);
         }
-        return elem.observer.asObservable();
+        result = elem.observer.asObservable();
       } else {
-        return element ? element.value : undefined;
+        result = element ? element.value : undefined;
       }
+      executeAfterSelectMiddleware(prototype, key, element ? element.value : null);
+      return result;
     }
     // We don't create setter since we want selected properties to behave like readonly properties
   });
