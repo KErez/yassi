@@ -1,6 +1,6 @@
 # yassi
 
-Yet another simple store implementation
+Yet Another Simple Store Implementation
 
 ## Overview
 Yassi is a very simple javascript store implementation.
