@@ -46,6 +46,9 @@ class StoreWrapper {
 
   update(key: string, value: any) {
     let element: StoreElement = this.get(key);
+    if (!element) {
+      return null;
+    }
     element.value = value;
     if (element.observer) {
       element.observer.next(value);

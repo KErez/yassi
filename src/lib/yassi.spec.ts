@@ -3,8 +3,8 @@
 
 
 import test from 'ava';
-
 import {BehaviorSubject} from "rxjs";
+
 import {yassiStore} from "./store";
 import {observe, registerMiddleware, select, yassit} from './yassi';
 

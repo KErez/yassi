@@ -16,7 +16,7 @@ declare class StoreWrapper {
     has(key: string): boolean;
     ensureUniqueuness(key: string): void;
     touch(key: string): void;
-    update(key: string, value: any): void;
+    update(key: string, value: any): any;
 }
 export declare const yassiStore: StoreWrapper;
 export {};
