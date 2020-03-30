@@ -27,7 +27,7 @@
     "fix:prettier": "prettier \"src/**/*.ts\" --write",
     "fix:tslint": "tslint --fix --project .",
     "test": "run-s build test:unit",
-    "test:debug": "run-s build && node ava",
+    "test:debug": "run-s build && node ./node_modules/ava",
     "test:all": "run-s build test:*",
     "test:lint": "tslint --project . && prettier \"src/**/*.ts\" --list-different",
     "test:unit": "nyc --silent ava",
@@ -66,7 +66,7 @@
     "rxjs": "^6.4.0"
   },
   "devDependencies": {
-    "ava": "1.0.0-beta.7",
+    "ava": "^1.4.1",
     "codecov": "^3.1.0",
     "cz-conventional-changelog": "^2.1.0",
     "gh-pages": "^2.0.1",
