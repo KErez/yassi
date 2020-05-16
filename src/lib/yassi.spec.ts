@@ -238,7 +238,7 @@ test('observe an array changes', (t) => {
   return v;
 });
 
-test('observe object were its property changes using yassi.touch', (t) => {
+test('observe object were its property changes', (t) => {
   class TestDest {
     @observe('TestSource.srcAsyncObjProp8') prop8;
   }
@@ -247,24 +247,17 @@ test('observe object were its property changes using yassi.touch', (t) => {
   const test2 = new TestDest();
 
   const expectedVals = [undefined, {inner1: 5}, {inner1: 8}];
-  let lastValidatedValue: any;
   let v = new BehaviorSubject<any>(null);
   test2.prop8.subscribe((val) => {
-    lastValidatedValue = Object.assign({}, val);
     t.deepEqual(val, expectedVals.shift());
     if (expectedVals.length === 0) {
       v.complete();
     }
   });
-  // Note that changing the source's property does not trigger the observable.
-  // Only when you call touch()
   test1.asyncProp8 = {
     inner1: 5
   };
-  t.deepEqual(lastValidatedValue, {inner1: 5});
   test1.asyncProp8.inner1 = 8;
-  t.deepEqual(lastValidatedValue, {inner1: 5});
-  yassiStore.touch('TestSource.srcAsyncObjProp8');
   return v;
 });
 

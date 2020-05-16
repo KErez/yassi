@@ -97,13 +97,32 @@ function setElementValueHandler(element: StoreElement, value: any, prototype: an
           target[property] = val;
           return true;
         }
-        executeBeforeYassitMiddleware(prototype, key, value);
+        executeBeforeYassitMiddleware(prototype, key, element.value);
         target[property] = val;
         element.observer.next(element.value);
         executeAfterYassitMiddleware(prototype, key, element.value);
         return true;
       }
     });
+  } else if (typeof (value) === 'object') {
+    element.value = new Proxy(value, {
+      // @ts-ignore
+      deleteProperty(target, property) {
+        return true;
+      },
+      // @ts-ignore
+      set(target, property, val, receiver) {
+        if (target.hasOwnProperty(property)) {
+          executeBeforeYassitMiddleware(prototype, key, value);
+          target[property] = val;
+          element.observer.next(element.value);
+          executeAfterYassitMiddleware(prototype, key, element.value);
+        } else {
+          target[property] = val;
+        }
+        return true;
+      }
+    })
   } else {
     element.value = value;
   }
