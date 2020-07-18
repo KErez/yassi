@@ -155,34 +155,6 @@ export function overrideSelectPropertyDefinition(prototype: any,
   });
 }
 
-export function yassit(name: string) {
-  if (!name || name.length <= 0) {
-    throw new Error('You must provide property name when using @yassit()');
-  }
-  // TODO: provide property descriptor from strategy class (i.e. allow different type of property storing
-  return function (target: any, key: string) {
-    overridePropertyDefinition(target, key, new YassiPropertyDescriptor(name));
-  };
-}
-
-export function select(name) {
-  if (!name || name.length <= 0) {
-    throw new Error('Missing key. You must provide name parameter when using @select()');
-  }
-  return function (target: any, key: string) {
-    overrideSelectPropertyDefinition(target, key, new YassiPropertyDescriptor(name))
-  };
-}
-
-export function observe(name) {
-  if (!name || name.length <= 0) {
-    throw new Error('Missing key. You must provide name parameter when using @observe()');
-  }
-  return function (target: any, key: string) {
-    overrideSelectPropertyDefinition(target, key, new YassiPropertyDescriptor(name), true)
-  };
-}
-
 export function _registerMiddleware(action: string, position: string, fn: (proto, key, val) => void = null) {
   fn = fn || DEFAULT_LOGGER_MIDDLEWARE;
   let arrayToSearch;
@@ -234,14 +206,3 @@ function executeAfterSelectMiddleware(prototype: any, key: string, value: any) {
     item(prototype, key, value);
   }
 }
-
-/*
-Why not recursively overridePropertyDefinition when it is an object/array??!
-You should create a benchmark between such solutions where the object size
-  (vertically) and depth grows incrementally
-Benchmark both creation time of objects and then access and change time in
-  conjunction with yassiTouch/yassiUpdate/yassiAssign
-
-The benefit is it works is that it will make yassiTouch/yassiUpdate/yassiAssign
-  obsolete and the user can use the core js functionality
- */

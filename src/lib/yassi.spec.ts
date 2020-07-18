@@ -3,10 +3,9 @@
 
 
 import test from 'ava';
-import {BehaviorSubject} from "rxjs";
+import { BehaviorSubject, Observable } from 'rxjs';
 
-import {observe, registerMiddleware, select, yassit} from './exportedApi';
-// import {yassiStore} from "./store";
+import yassi, {observe, registerMiddleware, select, yassit} from './exportedApi';
 
 // @ts-ignore
 // class NoInstance {
@@ -52,6 +51,7 @@ class TestSource {
   @yassit('TestSource.srcArrayProp12')
   arrayProp12: any[];
 
+  noAnnotationProp13: any;
 
   changeProp6Async() {
     let promise = new Promise((resolve) => {
@@ -65,10 +65,6 @@ class TestSource {
 
   changeProp7Async() {
     setTimeout(() => this.asyncProp7 = 1414, 200);
-  }
-
-  yassitWithoutAnnotation() {
-    yassit('TestSource.srcNoAnnonProp13', this, 'noAnnonProp13');
   }
 }
 
@@ -330,7 +326,7 @@ test('Change an uninitialized observed object', (t) => {
   return v;
 });
 
-test('Use update to change a stored element', (t) => {
+test("Change object's properties and observe them", (t) => {
   class TestDest {
     @observe('TestSource.srcAsyncObjProp11') prop11;
   }
@@ -359,9 +355,43 @@ test('Use update to change a stored element', (t) => {
     test1.asyncProp11.prop1 = 'changed';
     test1.asyncProp11.prop3 = 'other';
     test1.asyncProp11.prop4 = 42;
+  },10);
 
-    // yassiStore.update('TestSource.srcAsyncObjProp11', {prop3: 'other'});
-    // yassiStore.update('TestSource.srcAsyncObjProp11', {prop4: 42});
+  return v;
+});
+
+test('No annotations yassit and observe', (t) => {
+  class TestDest {
+    prop13: Observable<any>;
+  }
+
+  const test1 = new TestSource();
+  const test2 = new TestDest();
+
+  yassi.yassit('TestSource.noAnnotationProp13', test1, 'noAnnotationProp13');
+  yassi.observe('TestSource.noAnnotationProp13', test2, 'prop13');
+
+  const expectedVals = [
+    undefined,
+    {prop1: 'bla'},
+    {prop1: 'changed'},
+    {prop1: 'changed', prop3: 'other'},
+    {prop1: 'changed', prop3: 'other', prop4: 42},
+  ];
+  let v = new BehaviorSubject<any>(null);
+  setTimeout(() => {
+    test2.prop13.subscribe((val) => {
+      t.deepEqual(val, expectedVals.shift());
+      if (expectedVals.length === 0) {
+        v.complete();
+      }
+    });
+    test1.noAnnotationProp13 = {
+      prop1: 'bla'
+    };
+    test1.noAnnotationProp13.prop1 = 'changed';
+    test1.noAnnotationProp13.prop3 = 'other';
+    test1.noAnnotationProp13.prop4 = 42;
   },10);
 
   return v;

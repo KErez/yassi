@@ -37,23 +37,24 @@ class StoreWrapper {
     }
   }
 
-  touch(key: string) {
-    const element: StoreElement = this.store.get(key);
-    if (element && element.observer) {
-      element.observer.next(element.observer.value);
-    }
-  }
+  ////// Deprecate methods
+  // touch(key: string) {
+  //   const element: StoreElement = this.store.get(key);
+  //   if (element && element.observer) {
+  //     element.observer.next(element.observer.value);
+  //   }
+  // }
 
-  update(key: string, value: any) {
-    let element: StoreElement = this.get(key);
-    if (!element) {
-      return null;
-    }
-    element.value = value;
-    if (element.observer) {
-      element.observer.next(value);
-    }
-  }
+  // update(key: string, value: any) {
+  //   let element: StoreElement = this.get(key);
+  //   if (!element) {
+  //     return null;
+  //   }
+  //   element.value = value;
+  //   if (element.observer) {
+  //     element.observer.next(value);
+  //   }
+  // }
 }
 
 export const yassiStore: StoreWrapper = new StoreWrapper();

@@ -1,2 +1,1 @@
-export * from './lib/yassi';
-export { yassiStore } from './lib/store';
+export * from './lib/exportedApi';
