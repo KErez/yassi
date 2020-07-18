@@ -5,8 +5,8 @@
 import test from 'ava';
 import {BehaviorSubject} from "rxjs";
 
-import {yassiStore} from "./store";
-import {observe, registerMiddleware, select, yassit} from './yassi';
+import {observe, registerMiddleware, select, yassit} from './exportedApi';
+// import {yassiStore} from "./store";
 
 // @ts-ignore
 // class NoInstance {
@@ -65,6 +65,10 @@ class TestSource {
 
   changeProp7Async() {
     setTimeout(() => this.asyncProp7 = 1414, 200);
+  }
+
+  yassitWithoutAnnotation() {
+    yassit('TestSource.srcNoAnnonProp13', this, 'noAnnonProp13');
   }
 }
 
@@ -337,8 +341,9 @@ test('Use update to change a stored element', (t) => {
   const expectedVals = [
     undefined,
     {prop1: 'bla'},
-    {prop3: 'other'},
-    {prop4: 42},
+    {prop1: 'changed'},
+    {prop1: 'changed', prop3: 'other'},
+    {prop1: 'changed', prop3: 'other', prop4: 42},
   ];
   let v = new BehaviorSubject<any>(null);
   setTimeout(() => {
@@ -351,8 +356,12 @@ test('Use update to change a stored element', (t) => {
     test1.asyncProp11 = {
       prop1: 'bla'
     };
-    yassiStore.update('TestSource.srcAsyncObjProp11', {prop3: 'other'});
-    yassiStore.update('TestSource.srcAsyncObjProp11', {prop4: 42});
+    test1.asyncProp11.prop1 = 'changed';
+    test1.asyncProp11.prop3 = 'other';
+    test1.asyncProp11.prop4 = 42;
+
+    // yassiStore.update('TestSource.srcAsyncObjProp11', {prop3: 'other'});
+    // yassiStore.update('TestSource.srcAsyncObjProp11', {prop4: 42});
   },10);
 
   return v;

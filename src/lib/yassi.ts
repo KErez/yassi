@@ -1,6 +1,6 @@
-import {BehaviorSubject} from "rxjs";
+import { BehaviorSubject } from 'rxjs';
 
-import {ElementStatus, StoreElement, yassiStore} from "./store";
+import { ElementStatus, StoreElement, yassiStore } from './store';
 
 
 const beforeYassitMiddleware = [];
@@ -18,7 +18,7 @@ function DEFAULT_LOGGER_MIDDLEWARE(prototype: any, key: string, value: any) {
   }
 }
 
-class YassiPropertyDescriptor {
+export class YassiPropertyDescriptor {
   // The actual name of the property in the store
   name: string;
   // TODO:If true, the property will be writable by any holder and not just by the parent/host component
@@ -37,7 +37,7 @@ class YassiPropertyDescriptor {
  *  Now each time an instance is called the setter is called and set a new setter and getter definition
  * Thanks to Romke Van Der Meulen - https://romkevandermeulen.nl/2018/01/24/typescript-property-decorators.html
  */
-function overridePropertyDefinition(prototype: any,
+export function overridePropertyDefinition(prototype: any,
                                     key: string,
                                     yassiDescriptor: YassiPropertyDescriptor) {
   if (yassiStore.has(yassiDescriptor.name)) {
@@ -112,7 +112,7 @@ function setElementValueHandler(element: StoreElement, value: any, prototype: an
       },
       // @ts-ignore
       set(target, property, val, receiver) {
-        if (target.hasOwnProperty(property)) {
+        if (!target[property] || target.hasOwnProperty(property)) {
           executeBeforeYassitMiddleware(prototype, key, value);
           target[property] = val;
           element.observer.next(element.value);
@@ -128,7 +128,7 @@ function setElementValueHandler(element: StoreElement, value: any, prototype: an
   }
 }
 
-function overrideSelectPropertyDefinition(prototype: any,
+export function overrideSelectPropertyDefinition(prototype: any,
                                           key: string,
                                           yassiDescriptor: YassiPropertyDescriptor,
                                           obsrv: boolean = false) {
@@ -183,7 +183,7 @@ export function observe(name) {
   };
 }
 
-export function registerMiddleware(action: string, position: string, fn: (proto, key, val) => void = null) {
+export function _registerMiddleware(action: string, position: string, fn: (proto, key, val) => void = null) {
   fn = fn || DEFAULT_LOGGER_MIDDLEWARE;
   let arrayToSearch;
   switch (action) {
