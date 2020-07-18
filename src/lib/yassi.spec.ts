@@ -53,6 +53,8 @@ class TestSource {
 
   noAnnotationProp13: any;
 
+  oldJSObjectProp14: any;
+
   changeProp6Async() {
     let promise = new Promise((resolve) => {
       setTimeout(() => {
@@ -392,6 +394,43 @@ test('No annotations yassit and observe', (t) => {
     test1.noAnnotationProp13.prop1 = 'changed';
     test1.noAnnotationProp13.prop3 = 'other';
     test1.noAnnotationProp13.prop4 = 42;
+  },10);
+
+  return v;
+});
+
+test('yassit on an old js object without class and annotations', (t) => {
+  function TestDest() {
+    this.prop14 = undefined;
+  }
+
+  const test1 = new TestSource();
+  const test2 = new TestDest();
+
+  yassi.yassit('TestSource.oldJSObjectProp14', test1, 'oldJSObjectProp14');
+  yassi.observe('TestSource.oldJSObjectProp14', test2, 'prop14');
+
+  const expectedVals = [
+    undefined,
+    {prop1: 'bla'},
+    {prop1: 'changed'},
+    {prop1: 'changed', prop3: 'other'},
+    {prop1: 'changed', prop3: 'other', prop4: 42},
+  ];
+  let v = new BehaviorSubject<any>(null);
+  setTimeout(() => {
+    test2.prop14.subscribe((val) => {
+      t.deepEqual(val, expectedVals.shift());
+      if (expectedVals.length === 0) {
+        v.complete();
+      }
+    });
+    test1.oldJSObjectProp14 = {
+      prop1: 'bla'
+    };
+    test1.oldJSObjectProp14.prop1 = 'changed';
+    test1.oldJSObjectProp14.prop3 = 'other';
+    test1.oldJSObjectProp14.prop4 = 42;
   },10);
 
   return v;
