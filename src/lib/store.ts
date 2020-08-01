@@ -22,6 +22,17 @@ class StoreWrapper {
     return this.store.get(key);
   }
 
+  getOrCreate(key: string, status: ElementStatus) {
+    let element: StoreElement = this.get(key);
+    if (!element) {
+      element = new StoreElement(status);
+      element.observer = new BehaviorSubject<any>(null);
+      // A client may observe a key that was not set yet.
+      yassiStore.set(key, element);
+    }
+    return element;
+  }
+
   set(key: string, element: StoreElement) {
     this.store.set(key, element);
   }
@@ -31,9 +42,13 @@ class StoreWrapper {
   }
 
   ensureUniqueuness(key: string) {
-    let element = this.store.get(key);
-    if (element && element.status === ElementStatus.ACTIVE) {
-      throw new Error(`Store already has entry with name ${key}`);
+    let elem = yassiStore.get(key);
+    if (elem) {
+      if (elem.status === ElementStatus.ACTIVE) {
+        throw new Error(`Store already has an active entry with name ${key}`);
+      } else {
+        elem.status = ElementStatus.ACTIVE;
+      }
     }
   }
 

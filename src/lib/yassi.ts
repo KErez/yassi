@@ -1,4 +1,5 @@
-import { BehaviorSubject } from 'rxjs';
+import { combineLatest, Observable } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 
 import { ElementStatus, StoreElement, yassiStore } from './store';
 
@@ -18,6 +19,9 @@ function DEFAULT_LOGGER_MIDDLEWARE(prototype: any, key: string, value: any) {
   }
 }
 
+// tslint:disable-next-line:variable-name
+const _facadeOwner = {};
+
 export class YassiPropertyDescriptor {
   // The actual name of the property in the store
   name: string;
@@ -30,6 +34,21 @@ export class YassiPropertyDescriptor {
   }
 }
 
+export function _yassit(name: string, targetObj?: any, targetProp?: string) {
+  if (targetObj && targetProp) {
+    // When the call to yassit was made directly without annotation
+    overridePropertyDefinition(targetObj, targetProp, new YassiPropertyDescriptor(name));
+    return null;
+  }
+
+  // TODO: provide property descriptor from strategy class (i.e. allow different type of property storing
+  return function(target: any, key: string) {
+    overridePropertyDefinition(target, key, new YassiPropertyDescriptor(name));
+  };
+
+}
+
+
 /**
  * To make sure the property definition is on the instance and not on the class you need to define the property
  *  to override itself with another property definition.
@@ -40,17 +59,15 @@ export class YassiPropertyDescriptor {
 export function overridePropertyDefinition(prototype: any,
                                     key: string,
                                     yassiDescriptor: YassiPropertyDescriptor) {
-  if (yassiStore.has(yassiDescriptor.name)) {
-    throw new Error(`Store already has entry with name ${yassiDescriptor.name}`)
-  }
   yassiStore.ensureUniqueuness(yassiDescriptor.name);
-
+  yassiStore.set(yassiDescriptor.name, new StoreElement(ElementStatus.ACTIVE));
   /**
    * prototype - The constructor of the class that declared yassit on a property
    * key - the property name that yassit was attached too
    */
   Object.defineProperty(prototype, key, {
     set(firstValue: any) { // This set called on first instantiation of the class
+      activateElementIfNeeded(yassiDescriptor);
       Object.defineProperty(this, key, {
         // this - the instance of a 'prototype' class
         get() {
@@ -59,7 +76,7 @@ export function overridePropertyDefinition(prototype: any,
         },
         set(value: any) { // Here we override the above set
           executeBeforeYassitMiddleware(prototype, key, value);
-          let elem = yassiStore.get(yassiDescriptor.name) || new StoreElement();
+          let elem = yassiStore.get(yassiDescriptor.name);
           setElementValueHandler(elem, value, prototype, key);
           yassiStore.set(yassiDescriptor.name, elem);
           if (elem.value && !Array.isArray(elem.value)){
@@ -128,26 +145,27 @@ function setElementValueHandler(element: StoreElement, value: any, prototype: an
   }
 }
 
+function activateElementIfNeeded(yassiDescriptor: YassiPropertyDescriptor) {
+  const element = yassiStore.get(yassiDescriptor.name);
+  if (!element) {
+    throw new Error(`Element ${yassiDescriptor.name} does not exist... Odd`);
+  }
+  if (element.status === ElementStatus.PENDING) {
+    element.status = ElementStatus.ACTIVE;
+    yassiStore.set(yassiDescriptor.name, element);
+  }
+}
+
 export function overrideSelectPropertyDefinition(prototype: any,
                                           key: string,
                                           yassiDescriptor: YassiPropertyDescriptor,
                                           obsrv: boolean = false) {
   Object.defineProperty(prototype, key, {
     get() {
-      let result: any;
       executeBeforeSelectMiddleware(prototype, key);
-      let element = yassiStore.get(yassiDescriptor.name);
-      if (obsrv) {
-        let elem = element || new StoreElement(ElementStatus.PENDING);
-        elem.observer = elem.observer || new BehaviorSubject<any>(elem.value);
-        if(!element) {
-          // A client may observe a key that was not set yet.
-          yassiStore.set(yassiDescriptor.name, elem);
-        }
-        result = elem.observer.asObservable();
-      } else {
-        result = element ? element.value : undefined;
-      }
+      // One may observe a property that was not yassit yet. In this case we like to create a pending entry in the store
+      let element = yassiStore.getOrCreate(yassiDescriptor.name, ElementStatus.PENDING);
+      const result: any = obsrv ? element.observer.asObservable() : element.value;
       executeAfterSelectMiddleware(prototype, key, element ? element.value : null);
       return result;
     }
@@ -177,6 +195,30 @@ export function _registerMiddleware(action: string, position: string, fn: (proto
     }
   }
   arrayToSearch.push(fn);
+}
+
+export function _facade(yassiDescriptor: YassiPropertyDescriptor, sourceElementDescriptors: YassiPropertyDescriptor[],
+                        fn: (yassiElementsValue: any[]) => any) {
+  if (_facadeOwner[yassiDescriptor.name] === undefined) {
+    _facadeOwner[yassiDescriptor.name] = null;
+  }
+  _yassit(yassiDescriptor.name, _facadeOwner, yassiDescriptor.name);
+  const yassiElements$: Array<Observable<any>> = [];
+  for (const descriptor of sourceElementDescriptors) {
+    yassiElements$.push(yassiStore.getOrCreate(descriptor.name, ElementStatus.PENDING).observer);
+  }
+
+  combineLatest(yassiElements$)
+    .pipe(
+      map(fn),
+      catchError((err) => {
+        console.log(err);
+        return err;
+      })
+    )
+    .subscribe((facadeResults: any) => {
+      yassiStore.get(yassiDescriptor.name).observer.next(facadeResults);
+    });
 }
 
 // @ts-ignore

@@ -4,9 +4,12 @@ Yet Another Simple Store Implementation
 
 ## Overview
 Yassi is a very simple javascript store implementation.  
-While there are many stores out there that do the job of storing your state well such as redux, flux and others, they are all too cumbersome and opinionated.  
+Yassi keeps your store lean and mean while allowing data extensions via facades.  
+Yassi encapsulate the data to avoid multiple data elements owners, thus reduce code complexity and maintenance.  
+
+While there are many stores out there storing your application state well enough such as redux, flux and others, they are all too cumbersome and opinionated.  
 Using these libraries requires too much boilerplate.  
-It is even recommended by top influential developers as well as by Redux FAQ page to use them only when your state become complex.
+It is even recommended by top influential developers as well as by Redux FAQ page to use these libraries only when your state become complex.
  
 As Pete Hunt, one of the early contributors to React, says:
 
@@ -16,16 +19,18 @@ Similarly, Dan Abramov, one of the creators of Redux, says:
 
 <h3><em>I would like to amend this: don't use Redux until you have problems with vanilla React.</em></h3>
 
-In addition, redux, flux and others provide public access to all their properties from anyone that can access the store.
- In many cases and especially when the project grows, the result of such broad access behaviour is a multiple location from which a property is edited which create maintenance hassle and code complexity.  
+In addition, redux, flux and others provide public access to all their properties from anyone that can access the store.  
+In many cases and especially when the project grows, the result of such broad access behaviour is the editing of single application state properties from multiple locations which increase code complexity and maintenance hassle.    
 
 Yassi approach is different.  
-It is so simple that you will <strong>want and should use it from your first line of code</strong>. 
- It is publicly readable but privately writable which means everybody can access the property but only the owner can change it
+<em><h4>It is so simple that you will want and should use it from your first line of code!!!</h4></em>   
+It is publicly readable but privately writable which means everybody can access the property but only the owner can change it
  
 Yassi key features are:
 1. Unopinionated store - you don't need reducers or actions. Just mark the property you want to store with @yassit and you good to go
-1. Publicly readable - all properties in the store can be accessed by any consumer however only the producer/owner of the property can change it.
+1. Publicly readable - all properties in the store can be accessed by any consumer.
+1. Privately writeable - only the owner of the property (i.e the class or object) may apply changes to the property.
+1. Lean and mean - with <strong>facades</strong> you can extend the store data thus allowing you to keep the store as lean as possible.
 1. Reactive store as well as not - You may get a property's value from the store using @select or use @observe to get a reactive observable on the given property
 1. You can register any middleware to the storing process allowing you to create powerfull tools on top of Yassi.  
 The following middleware are available:
@@ -101,7 +106,7 @@ import {registerMiddleware} from 'yassi';
 
 registerMiddleware('yassit', 'before');
 // Instantiation of MyCoolClass as well as updates to its properties will print the properties to the console.
-cosnt myClass = new MyCoolClass();
+const myClass = new MyCoolClass();
 ```
 
 * You may provide a call back function to registerMiddleware that will execute every time the decorator is run
@@ -112,7 +117,7 @@ import {registerMiddleware} from 'yassi';
 registerMiddleware('yassit', 'after',
     (proto: any, key: string, val: any) => console.log(`-------${proto.constructor.name}.${key}=${val}-------`));
 // Instantiation of MyCoolClass will trigger the given callback calls to the console.
-cosnt myClass = new MyCoolClass();
+const myClass = new MyCoolClass();
 ```
 
 You can register any amount of middlewares for yassit, select and observe before and/or after it.

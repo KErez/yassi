@@ -5,7 +5,8 @@
 import test from 'ava';
 import { BehaviorSubject, Observable } from 'rxjs';
 
-import yassi, {observe, registerMiddleware, select, yassit} from './exportedApi';
+import yassi, { observe, registerMiddleware, select, yassit } from './exportedApi';
+import { yassiStore } from './store';
 
 // @ts-ignore
 // class NoInstance {
@@ -54,6 +55,13 @@ class TestSource {
   noAnnotationProp13: any;
 
   oldJSObjectProp14: any;
+
+  @yassit('TestSource.facadeSource15')
+  facadeProp15: any = {
+    first: 'Kfir',
+    last: 'Erez',
+    birthYear: 1975
+  };
 
   changeProp6Async() {
     let promise = new Promise((resolve) => {
@@ -215,7 +223,7 @@ test('yassit on existing entry name throw exception', (t) => {
       @yassit('TestSource.srcNumProp2') illegalPropDecorator;
     }
   } catch (e) {
-    t.is(e.message, 'Store already has entry with name TestSource.srcNumProp2');
+    t.is(e.message, 'Store already has an active entry with name TestSource.srcNumProp2');
   }
 });
 
@@ -434,6 +442,60 @@ test('yassit on an old js object without class and annotations', (t) => {
   },10);
 
   return v;
+});
+
+test('create a facade on top of stored element', (t) => {
+  yassi.facade('facadeDest_fullName', ['TestSource.facadeSource15'], ([userObj]) => {
+    if (!userObj) {
+      return null;
+    }
+    return `${userObj.first} ${userObj.last}`
+  });
+
+  t.is(yassiStore.has('TestSource.facadeSource15'), true);
+  t.is(yassiStore.has('facadeDest_fullName'), true);
+
+  class TestDest {
+    @observe('facadeDest_fullName')
+    fullNameProp15;
+  }
+
+  // @ts-ignore
+  const test1 = new TestSource();
+  const test2 = new TestDest();
+  const expectedVals = [
+    'Kfir Erez',
+  ];
+
+  let v = new BehaviorSubject<any>(null);
+  setTimeout(() => {
+    test2.fullNameProp15.subscribe((fullName: string) => {
+      const val = expectedVals.shift();
+      t.is(fullName, val);
+      if (expectedVals.length === 0) {
+        v.complete();
+      }
+    });
+  },0);
+
+  return v;
+});
+
+test('Fail to create facade with invalid characters', (t) => {
+  try {
+    yassi.facade('1facadeDest.fullName', ['TestSource.facadeSource15'], ([userObj]) => {
+      return `${userObj.first} ${userObj.last}`
+    });
+  } catch(e) {
+    t.is(e.message, 'You must provide valid name and yassiElementsName when using facade');
+  }
+  try {
+    yassi.facade('facadeDest.fullName', ['TestSource.facadeSource15'], ([userObj]) => {
+      return `${userObj.first} ${userObj.last}`
+    });
+  } catch(e) {
+    t.is(e.message, 'You must provide valid name and yassiElementsName when using facade');
+  }
 });
 
 test('registerMiddleware for before yassit', (t) => {

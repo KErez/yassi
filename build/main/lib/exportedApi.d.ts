@@ -3,6 +3,7 @@ declare class Yassi {
     observe(name: string, owner: object, property: string): void;
     select(name: string, owner: object, property: string): void;
     registerMiddleware(action: string, position: string, fn?: (proto: any, key: any, val: any) => void): void;
+    facade(name: string, yassiElementsName: string[], fn: (yassiElementsValue: any[]) => any): void;
 }
 declare const yassi: Yassi;
 export default yassi;

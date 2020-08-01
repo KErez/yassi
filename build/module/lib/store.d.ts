@@ -12,6 +12,7 @@ export declare class StoreElement {
 declare class StoreWrapper {
     private store;
     get(key: string): StoreElement;
+    getOrCreate(key: string, status: ElementStatus): StoreElement;
     set(key: string, element: StoreElement): void;
     has(key: string): boolean;
     ensureUniqueuness(key: string): void;
