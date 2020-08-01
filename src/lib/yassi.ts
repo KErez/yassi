@@ -34,10 +34,10 @@ export class YassiPropertyDescriptor {
   }
 }
 
-export function _yassit(name: string, targetObj?: any, targetProp?: string) {
-  if (targetObj && targetProp) {
+export function _yassit(name: string, owner?: any, ownerProp?: string) {
+  if (owner && ownerProp) {
     // When the call to yassit was made directly without annotation
-    overridePropertyDefinition(targetObj, targetProp, new YassiPropertyDescriptor(name));
+    overridePropertyDefinition(owner, ownerProp, new YassiPropertyDescriptor(name));
     return null;
   }
 

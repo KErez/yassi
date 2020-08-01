@@ -3,7 +3,7 @@ export declare class YassiPropertyDescriptor {
     fullAccess: boolean;
     constructor(name: any, fullAccess?: boolean);
 }
-export declare function _yassit(name: string, targetObj?: any, targetProp?: string): (target: any, key: string) => void;
+export declare function _yassit(name: string, owner?: any, ownerProp?: string): (target: any, key: string) => void;
 /**
  * To make sure the property definition is on the instance and not on the class you need to define the property
  *  to override itself with another property definition.

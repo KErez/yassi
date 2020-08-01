@@ -10,12 +10,12 @@ class Yassi{
     return yassit(name, owner, property);
   }
 
-  observe(name: string, owner: object, property: string) {
-    return overrideSelectPropertyDefinition(owner, property, new YassiPropertyDescriptor(name), true);
+  observe(name: string, targetObj: object, targetProp: string) {
+    return overrideSelectPropertyDefinition(targetObj, targetProp, new YassiPropertyDescriptor(name), true);
   }
 
-  select(name: string, owner: object, property: string) {
-    return overrideSelectPropertyDefinition(owner, property, new YassiPropertyDescriptor(name), false);
+  select(name: string, targetObj: object, targetProp: string) {
+    return overrideSelectPropertyDefinition(targetObj, targetProp, new YassiPropertyDescriptor(name), false);
   }
 
   registerMiddleware(action: string, position: string, fn: (proto, key, val) => void = null) {
@@ -37,13 +37,13 @@ const yassi = new Yassi();
 export default yassi;
 
 // Function exported from here are annotation solutions
-export function yassit(name: string, targetObj?: any, targetProp?: string) {
+export function yassit(name: string, owner?: any, ownerProp?: string) {
   // TODO: Add validate name functin that will be used everywhere
   if (!name || name.length <= 0) {
     throw new Error('You must provide property name when using @yassit()');
   }
 
-  return _yassit(name, targetObj, targetProp)
+  return _yassit(name, owner, ownerProp)
 }
 
 export function select(name) {

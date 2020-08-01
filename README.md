@@ -5,7 +5,7 @@ Yet Another Simple Store Implementation
 ## Overview
 Yassi is a very simple javascript store implementation.  
 Yassi keeps your store lean and mean while allowing data extensions via facades.  
-Yassi encapsulate the data to avoid multiple data elements owners, thus reduce code complexity and maintenance.  
+Yassi store's properties have unique single owner thus reduce code complexity and maintenance.
 
 While there are many stores out there storing your application state well enough such as redux, flux and others, they are all too cumbersome and opinionated.  
 Using these libraries requires too much boilerplate.  
@@ -20,7 +20,8 @@ Similarly, Dan Abramov, one of the creators of Redux, says:
 <h3><em>I would like to amend this: don't use Redux until you have problems with vanilla React.</em></h3>
 
 In addition, redux, flux and others provide public access to all their properties from anyone that can access the store.  
-In many cases and especially when the project grows, the result of such broad access behaviour is the editing of single application state properties from multiple locations which increase code complexity and maintenance hassle.    
+In many cases and especially when the project grows, the result of such broad access behaviour is the manipulation of single application 
+state's properties from multiple locations which increase code complexity and maintenance hassle.    
 
 Yassi approach is different.  
 <em><h4>It is so simple that you will want and should use it from your first line of code!!!</h4></em>   
@@ -28,11 +29,13 @@ It is publicly readable but privately writable which means everybody can access 
  
 Yassi key features are:
 1. Unopinionated store - you don't need reducers or actions. Just mark the property you want to store with @yassit and you good to go
+1. Don't want annotation? No problem, use the non annotated version of Yassi's operators.
 1. Publicly readable - all properties in the store can be accessed by any consumer.
-1. Privately writeable - only the owner of the property (i.e the class or object) may apply changes to the property.
-1. Lean and mean - with <strong>facades</strong> you can extend the store data thus allowing you to keep the store as lean as possible.
+1. Privately writeable - only the owner of the property (i.e the class or object own the property) can apply changes to the property.
+1. Lean and mean - with <em>facades</em> you may create store entries that cannot be changed directly and only changes as a reaction to store changes. 
+This behaviour allowing you to keep the store as lean as possible.
 1. Reactive store as well as not - You may get a property's value from the store using @select or use @observe to get a reactive observable on the given property
-1. You can register any middleware to the storing process allowing you to create powerfull tools on top of Yassi.  
+1. You can register any middleware to Yassi's operators, allowing you to create powerfull tools on top of Yassi.  
 The following middleware are available:
   * beforeStore
   * afterStore
@@ -47,7 +50,7 @@ npm install --save yassi
 
 ## Usage
 * Import Yassi 
-* Declare the properties that you like to store by add the @yassit('propertyNameInStore') before the declartion of the property
+* Declare the properties that you like to store by add the @yassit('propertyNameInStore') before the declartion of the property or use it without annotation as follow - yassit('propertyNameInStore', ownerObject, ownerPropertyName)
 * On another class, create a property and declare it with either @select or @observe to read the property from the store.
 
 ```typescript
@@ -55,10 +58,10 @@ import {yassit} from 'yassi';
 
 class MyCoolClass {
   @yassit('srcNumProp1')
-    numProp1: number;
+  numProp1: number;
   
   @yassit('srcNumProp2')
-    numProp2: number = 2;
+  numProp2: number = 2;
 }
 ```
 That's it, These properties are stored on class instantiation!!!
@@ -70,7 +73,8 @@ import {select} from 'yassi';
 class AnotherComponent {
   prop1: string;
   
-  @select('srcNumProp1') propFromStore: number;
+  @select('srcNumProp1')
+  propFromStore: number;
 }
 ``` 
 Again, that's it!!!
@@ -85,18 +89,87 @@ import {observe} from 'yassi';
 class AnotherComponent {
   prop1: string;
   
-  @observe('srcNumProp1') propFromStore: Observable<number>;
+  @observe('srcNumProp1') 
+  propFromStore: Observable<number>;
 }
 ``` 
 Now any change to ```MyCoolClass.numProp1``` will reflect reactivly on ```AnotherComponent.propFromStore``` 
 
-## API
-* <strong>@yassit(name: string)</strong> - prefixed on a class's property that you like to add it's values to the store upon instantiation  
-* <strong>@select(name: string)</strong> - prefixed on a class's property when you want to get a store value of named property  
-* <strong>@observe(name: string)</strong> - prefixed on a class's property when you want to observe a store propety via observable. You should subscribe to that observable to get any change in value.  
-* <strong>yassiStore.touch</strong> - call it when you change a source property that has observers and you want the value to dispatch to them. For example you have a `user` object that you observe and you have change the user.name. At this moment it will not trigger the observable so you need to call `touch` (this will be changed in comming releases)  
-* <strong>yassiStore.update(key: string, value: any)</strong> - Another way to update a stored object/property while making sure that any observer will be notified without the need to call yassiStore.touch. Update is equal to `user.name="changed name"` + `touch`
+## Introducing Facades
+One of the key concept of Yassi is to make the store lean and simple. To do so I created Yassi's Facades.
 
+The idea is that I encourage users to use the store (via yassit) only for core data items and any manipulations or combinations of these 
+ properties should come in the form of Facades. 
+ 
+ In Yassi, properties are stored by the owner thus the owner object may change their values. Facades are stored properties that does not 
+  have an owner and therefore cannot change directly (to be precise, they have owner but it is privately owned by Yassi).
+ 
+ Instead Facades listen to changes on one or more stored properties and triggers a function provided by the user on that changes to 
+  create a new result from these stored properties 
+
+Let's see how Facades works:
+
+Assume we have the following class with its yassit:
+```typescript
+import {yassit} from 'yassi';
+
+class ServerUserInfo {
+  @yassit('firstName')
+  firstName: string = 'John';
+  
+  @yassit('lastName')
+  lastName: string = 'Doe';
+
+  @yassit('birthDate')
+  birthDate: number = 946677600000; 
+}
+```
+
+If we want a full representation of the user info we should create facade instead of creating a new property owned by some object that can 
+ be use by everywhere
+ 
+```typescript
+import {yassi} from 'yassi';
+
+yassi.facade('userInfo', ['firstName', 'lastName', 'birthDate'], ([fName, lName, bDate]) => {
+  return {
+    first: fName,
+    last: lName,
+    full: `${fName} ${lName}`,
+    birth: new Date(bDate),
+  }
+});
+```
+
+Now the store has an entry `userInfo` which will hold the entire user info object but the beauty is that this entry is not changeable by 
+ anyone, it can only change as a reaction to changes on the source properties it was declared on!!!
+ 
+An example usage of that facade will be similar to any other stored property
+```typescript
+import {observe} from 'yassi';
+
+class AnotherComponent {  
+  @observe('userInfo') 
+  myUserInfo: Observable<object>;
+
+  printUserInfo() {
+    this.myUserInfo.subscribe((userInfo: object) => {
+      console.log(JSON.stringify(userInfo));
+    })
+  }
+}
+``` 
+
+Any change to one of the properties in the store `firstName`, `lastName` or `birthDate` will trigger a print of the new version of `userInfo`
+## API
+* <strong>@yassit(name: string)</strong> - prefixed on a class's property that you like to add it's values to the store upon instantiation
+* <strong>yassi.yassit(name: string, owner?: any, name?: string) - without annotation the `owner` and `name` are object and it's property in correspond that we like to store
+* <strong>@select(name: string)</strong> - prefixed on a class's property when you want to get a store value of named property
+* <strong>yassi.select(name: string, targetObj: object, targetProp: string) - without annotation, the targetObj and targetProp are object and it's property in correspond that we like to apply the store data on.
+* <strong>@observe(name: string)</strong> - prefixed on a class's property when you want to observe a store propety via observable. You should subscribe to that observable to get any change in value.
+* <strong>yassi.observe(name: string, targetObj: object, targetProp: string) - without annotation, the targetObj and targetProp are object and it's property in correspond that we like to apply the store data on reactively.  
+* <string>facade(name: string, yassiElementsName: string[], fn: (yassiElementsValue: any[]) => any)</strong> - The facade results will be stored in the store under the `name` entry and will execute the `fn` on each change on one of the stored values represented by `yassiElementsName`
+ 
 ## Middlewares
 You can register middleware functions that will be triggered synchronously before/after the yassi decorator apply
 * You can register the default middleware (i.e. print action to console) by simply call registerMiddleware without callback. 
@@ -123,9 +196,8 @@ const myClass = new MyCoolClass();
 You can register any amount of middlewares for yassit, select and observe before and/or after it.
 
 ## To Do
-1. Reduce the need of touch and update in most cases - provide a Proxy for objects so each property change will trigger the store (on first level only) 
+1. Introduce yassi.api which will allow a consumer to interact with a property's owner with an api exposed by the owner (still controlled by the owner)
 1. Make ```@yassi``` work on different instances of a class. Right now it support only one instance of a class
-1. Export the store and yassi via single api file (index.ts may suffice)
 1. Run benchmark against known stores
 1. Add more examples
 1. Add UI tools/extensions
