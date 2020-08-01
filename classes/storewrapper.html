@@ -89,6 +89,7 @@
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-not-exported"><a href="storewrapper.html#ensureuniqueuness" class="tsd-kind-icon">ensure<wbr>Uniqueuness</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-not-exported"><a href="storewrapper.html#get" class="tsd-kind-icon">get</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-not-exported"><a href="storewrapper.html#getorcreate" class="tsd-kind-icon">get<wbr>OrCreate</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-not-exported"><a href="storewrapper.html#has" class="tsd-kind-icon">has</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-not-exported"><a href="storewrapper.html#set" class="tsd-kind-icon">set</a></li>
 							</ul>
@@ -104,7 +105,7 @@
 					<div class="tsd-signature tsd-kind-icon">store<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Map</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><a href="storeelement.html" class="tsd-signature-type">StoreElement</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> =&nbsp;new Map&lt;string, StoreElement&gt;()</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/KErez/yassi/blob/d1ca010/src/lib/store.ts#L19">lib/store.ts:19</a></li>
+							<li>Defined in <a href="https://github.com/KErez/yassi/blob/2000cd8/src/lib/store.ts#L19">lib/store.ts:19</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -121,7 +122,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/KErez/yassi/blob/d1ca010/src/lib/store.ts#L33">lib/store.ts:33</a></li>
+									<li>Defined in <a href="https://github.com/KErez/yassi/blob/2000cd8/src/lib/store.ts#L44">lib/store.ts:44</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -144,13 +145,39 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/KErez/yassi/blob/d1ca010/src/lib/store.ts#L21">lib/store.ts:21</a></li>
+									<li>Defined in <a href="https://github.com/KErez/yassi/blob/2000cd8/src/lib/store.ts#L21">lib/store.ts:21</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>key: <span class="tsd-signature-type">string</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="storeelement.html" class="tsd-signature-type">StoreElement</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-not-exported">
+					<a name="getorcreate" class="tsd-anchor"></a>
+					<h3>get<wbr>OrCreate</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-not-exported">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>OrCreate<span class="tsd-signature-symbol">(</span>key<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, status<span class="tsd-signature-symbol">: </span><a href="../enums/elementstatus.html" class="tsd-signature-type">ElementStatus</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="storeelement.html" class="tsd-signature-type">StoreElement</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/KErez/yassi/blob/2000cd8/src/lib/store.ts#L25">lib/store.ts:25</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>key: <span class="tsd-signature-type">string</span></h5>
+								</li>
+								<li>
+									<h5>status: <a href="../enums/elementstatus.html" class="tsd-signature-type">ElementStatus</a></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="storeelement.html" class="tsd-signature-type">StoreElement</a></h4>
@@ -167,7 +194,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/KErez/yassi/blob/d1ca010/src/lib/store.ts#L29">lib/store.ts:29</a></li>
+									<li>Defined in <a href="https://github.com/KErez/yassi/blob/2000cd8/src/lib/store.ts#L40">lib/store.ts:40</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -190,7 +217,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/KErez/yassi/blob/d1ca010/src/lib/store.ts#L25">lib/store.ts:25</a></li>
+									<li>Defined in <a href="https://github.com/KErez/yassi/blob/2000cd8/src/lib/store.ts#L36">lib/store.ts:36</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -239,6 +266,9 @@
 								<a href="storewrapper.html#get" class="tsd-kind-icon">get</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-not-exported">
+								<a href="storewrapper.html#getorcreate" class="tsd-kind-icon">get<wbr>OrCreate</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-not-exported">
 								<a href="storewrapper.html#has" class="tsd-kind-icon">has</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-not-exported">
@@ -253,6 +283,9 @@
 					</li>
 					<li class=" tsd-kind-class">
 						<a href="yassipropertydescriptor.html" class="tsd-kind-icon">Yassi<wbr>Property<wbr>Descriptor</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-is-not-exported">
+						<a href="../globals.html#_facadeowner" class="tsd-kind-icon">_facade<wbr>Owner</a>
 					</li>
 					<li class=" tsd-kind-variable tsd-is-not-exported">
 						<a href="../globals.html#afterselectingmiddleware" class="tsd-kind-icon">after<wbr>Selecting<wbr>Middleware</a>
@@ -276,7 +309,16 @@
 						<a href="../globals.html#default_logger_middleware" class="tsd-kind-icon">DEFAULT_<wbr>LOGGER_<wbr>MIDDLEWARE</a>
 					</li>
 					<li class=" tsd-kind-function">
+						<a href="../globals.html#_facade" class="tsd-kind-icon">_facade</a>
+					</li>
+					<li class=" tsd-kind-function">
 						<a href="../globals.html#_registermiddleware" class="tsd-kind-icon">_register<wbr>Middleware</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="../globals.html#_yassit" class="tsd-kind-icon">_yassit</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-not-exported">
+						<a href="../globals.html#activateelementifneeded" class="tsd-kind-icon">activate<wbr>Element<wbr>IfNeeded</a>
 					</li>
 					<li class=" tsd-kind-function tsd-is-not-exported">
 						<a href="../globals.html#executeafterselectmiddleware" class="tsd-kind-icon">execute<wbr>After<wbr>Select<wbr>Middleware</a>

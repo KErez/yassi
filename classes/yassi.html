@@ -81,6 +81,7 @@
 						<section class="tsd-index-section tsd-is-not-exported">
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-not-exported"><a href="yassi.html#facade" class="tsd-kind-icon">facade</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-not-exported"><a href="yassi.html#observe" class="tsd-kind-icon">observe</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-not-exported"><a href="yassi.html#registermiddleware" class="tsd-kind-icon">register<wbr>Middleware</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-not-exported"><a href="yassi.html#select" class="tsd-kind-icon">select</a></li>
@@ -93,16 +94,16 @@
 			<section class="tsd-panel-group tsd-member-group tsd-is-not-exported">
 				<h2>Methods</h2>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-not-exported">
-					<a name="observe" class="tsd-anchor"></a>
-					<h3>observe</h3>
+					<a name="facade" class="tsd-anchor"></a>
+					<h3>facade</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-not-exported">
-						<li class="tsd-signature tsd-kind-icon">observe<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, owner<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span>, property<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">facade<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, yassiElementsName<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span>, fn<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">function</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/KErez/yassi/blob/d1ca010/src/lib/exportedApi.ts#L8">lib/exportedApi.ts:8</a></li>
+									<li>Defined in <a href="https://github.com/KErez/yassi/blob/2000cd8/src/lib/exportedApi.ts#L25">lib/exportedApi.ts:25</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -111,10 +112,57 @@
 									<h5>name: <span class="tsd-signature-type">string</span></h5>
 								</li>
 								<li>
-									<h5>owner: <span class="tsd-signature-type">object</span></h5>
+									<h5>yassiElementsName: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h5>
 								</li>
 								<li>
-									<h5>property: <span class="tsd-signature-type">string</span></h5>
+									<h5>fn: <span class="tsd-signature-type">function</span></h5>
+									<ul class="tsd-parameters">
+										<li class="tsd-parameter-siganture">
+											<ul class="tsd-signatures tsd-kind-type-literal tsd-is-not-exported">
+												<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>yassiElementsValue<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></li>
+											</ul>
+											<ul class="tsd-descriptions">
+												<li class="tsd-description">
+													<h4 class="tsd-parameters-title">Parameters</h4>
+													<ul class="tsd-parameters">
+														<li>
+															<h5>yassiElementsValue: <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span></h5>
+														</li>
+													</ul>
+													<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
+												</li>
+											</ul>
+										</li>
+									</ul>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-not-exported">
+					<a name="observe" class="tsd-anchor"></a>
+					<h3>observe</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-not-exported">
+						<li class="tsd-signature tsd-kind-icon">observe<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, targetObj<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span>, targetProp<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/KErez/yassi/blob/2000cd8/src/lib/exportedApi.ts#L13">lib/exportedApi.ts:13</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>name: <span class="tsd-signature-type">string</span></h5>
+								</li>
+								<li>
+									<h5>targetObj: <span class="tsd-signature-type">object</span></h5>
+								</li>
+								<li>
+									<h5>targetProp: <span class="tsd-signature-type">string</span></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -131,7 +179,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/KErez/yassi/blob/d1ca010/src/lib/exportedApi.ts#L16">lib/exportedApi.ts:16</a></li>
+									<li>Defined in <a href="https://github.com/KErez/yassi/blob/2000cd8/src/lib/exportedApi.ts#L21">lib/exportedApi.ts:21</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -178,13 +226,13 @@
 					<a name="select" class="tsd-anchor"></a>
 					<h3>select</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-not-exported">
-						<li class="tsd-signature tsd-kind-icon">select<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, owner<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span>, property<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">select<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, targetObj<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span>, targetProp<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/KErez/yassi/blob/d1ca010/src/lib/exportedApi.ts#L12">lib/exportedApi.ts:12</a></li>
+									<li>Defined in <a href="https://github.com/KErez/yassi/blob/2000cd8/src/lib/exportedApi.ts#L17">lib/exportedApi.ts:17</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -193,10 +241,10 @@
 									<h5>name: <span class="tsd-signature-type">string</span></h5>
 								</li>
 								<li>
-									<h5>owner: <span class="tsd-signature-type">object</span></h5>
+									<h5>targetObj: <span class="tsd-signature-type">object</span></h5>
 								</li>
 								<li>
-									<h5>property: <span class="tsd-signature-type">string</span></h5>
+									<h5>targetProp: <span class="tsd-signature-type">string</span></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -213,7 +261,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/KErez/yassi/blob/d1ca010/src/lib/exportedApi.ts#L4">lib/exportedApi.ts:4</a></li>
+									<li>Defined in <a href="https://github.com/KErez/yassi/blob/2000cd8/src/lib/exportedApi.ts#L9">lib/exportedApi.ts:9</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -259,6 +307,9 @@
 						<a href="yassi.html" class="tsd-kind-icon">Yassi</a>
 						<ul>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-not-exported">
+								<a href="yassi.html#facade" class="tsd-kind-icon">facade</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-not-exported">
 								<a href="yassi.html#observe" class="tsd-kind-icon">observe</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-not-exported">
@@ -276,6 +327,9 @@
 				<ul class="after-current">
 					<li class=" tsd-kind-class">
 						<a href="yassipropertydescriptor.html" class="tsd-kind-icon">Yassi<wbr>Property<wbr>Descriptor</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-is-not-exported">
+						<a href="../globals.html#_facadeowner" class="tsd-kind-icon">_facade<wbr>Owner</a>
 					</li>
 					<li class=" tsd-kind-variable tsd-is-not-exported">
 						<a href="../globals.html#afterselectingmiddleware" class="tsd-kind-icon">after<wbr>Selecting<wbr>Middleware</a>
@@ -299,7 +353,16 @@
 						<a href="../globals.html#default_logger_middleware" class="tsd-kind-icon">DEFAULT_<wbr>LOGGER_<wbr>MIDDLEWARE</a>
 					</li>
 					<li class=" tsd-kind-function">
+						<a href="../globals.html#_facade" class="tsd-kind-icon">_facade</a>
+					</li>
+					<li class=" tsd-kind-function">
 						<a href="../globals.html#_registermiddleware" class="tsd-kind-icon">_register<wbr>Middleware</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="../globals.html#_yassit" class="tsd-kind-icon">_yassit</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-not-exported">
+						<a href="../globals.html#activateelementifneeded" class="tsd-kind-icon">activate<wbr>Element<wbr>IfNeeded</a>
 					</li>
 					<li class=" tsd-kind-function tsd-is-not-exported">
 						<a href="../globals.html#executeafterselectmiddleware" class="tsd-kind-icon">execute<wbr>After<wbr>Select<wbr>Middleware</a>
