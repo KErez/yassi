@@ -163,11 +163,11 @@ class AnotherComponent {
 Any change to one of the properties in the store `firstName`, `lastName` or `birthDate` will trigger a print of the new version of `userInfo`
 ## API
 * <strong>@yassit(name: string)</strong> - prefixed on a class's property that you like to add it's values to the store upon instantiation
-* <strong>yassi.yassit(name: string, owner?: any, name?: string) - without annotation the `owner` and `name` are object and it's property in correspond that we like to store
+* <strong>yassi.yassit(name: string, owner?: any, name?: string)</strong> - without annotation the `owner` and `name` are object and it's property in correspond that we like to store
 * <strong>@select(name: string)</strong> - prefixed on a class's property when you want to get a store value of named property
-* <strong>yassi.select(name: string, targetObj: object, targetProp: string) - without annotation, the targetObj and targetProp are object and it's property in correspond that we like to apply the store data on.
+* <strong>yassi.select(name: string, targetObj: object, targetProp: string)</strong> - without annotation, the targetObj and targetProp are object and it's property in correspond that we like to apply the store data on.
 * <strong>@observe(name: string)</strong> - prefixed on a class's property when you want to observe a store propety via observable. You should subscribe to that observable to get any change in value.
-* <strong>yassi.observe(name: string, targetObj: object, targetProp: string) - without annotation, the targetObj and targetProp are object and it's property in correspond that we like to apply the store data on reactively.  
+* <strong>yassi.observe(name: string, targetObj: object, targetProp: string)</strong> - without annotation, the targetObj and targetProp are object and it's property in correspond that we like to apply the store data on reactively.  
 * <string>facade(name: string, yassiElementsName: string[], fn: (yassiElementsValue: any[]) => any)</strong> - The facade results will be stored in the store under the `name` entry and will execute the `fn` on each change on one of the stored values represented by `yassiElementsName`
  
 ## Middlewares
