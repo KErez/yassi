@@ -126,7 +126,7 @@ class ServerUserInfo {
 ```
 
 If we want a full representation of the user info we should create facade instead of creating a new property owned by some object that can 
- be use by everywhere
+ be use everywhere
  
 ```typescript
 import {yassi} from 'yassi';
@@ -168,7 +168,8 @@ Any change to one of the properties in the store `firstName`, `lastName` or `bir
 * <strong>yassi.select(name: string, targetObj: object, targetProp: string)</strong> - without annotation, the targetObj and targetProp are object and it's property in correspond that we like to apply the store data on.
 * <strong>@observe(name: string)</strong> - prefixed on a class's property when you want to observe a store propety via observable. You should subscribe to that observable to get any change in value.
 * <strong>yassi.observe(name: string, targetObj: object, targetProp: string)</strong> - without annotation, the targetObj and targetProp are object and it's property in correspond that we like to apply the store data on reactively.  
-* <string>facade(name: string, yassiElementsName: string[], fn: (yassiElementsValue: any[]) => any)</strong> - The facade results will be stored in the store under the `name` entry and will execute the `fn` on each change on one of the stored values represented by `yassiElementsName`
+* <strong>facade(name: string, yassiElementsName: string[], fn: (yassiElementsValue: any[]) => any)</strong> - The facade results will be stored in the store under the `name` entry and will execute the `fn` on each change on one of the stored values represented by `yassiElementsName`
+* <strong>registerMiddleware(action: string, position: string, fn: (proto, key, val) => void = null)</strong> - Register a middleware function that will execute on the target action (either before or after it). Good place to execute loggers or monitoring tools.
  
 ## Middlewares
 You can register middleware functions that will be triggered synchronously before/after the yassi decorator apply

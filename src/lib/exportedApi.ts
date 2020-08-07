@@ -1,4 +1,5 @@
 import {
+  _communicate,
   _facade,
   _registerMiddleware, _yassit,
   overrideSelectPropertyDefinition,
@@ -30,6 +31,10 @@ class Yassi{
     const elementDescriptors = yassiElementsName.map((n) => new YassiPropertyDescriptor(n));
 
     _facade(new YassiPropertyDescriptor(name), elementDescriptors, fn);
+  }
+
+  communicate(yassiPropName: string, apiFunctionName: string, functionParams: any[]) {
+    _communicate(yassiPropName, apiFunctionName, functionParams);
   }
 }
 // The default exported object is the support to none annotated solution

@@ -63,6 +63,13 @@ class TestSource {
     birthYear: 1975
   };
 
+  @yassit('TestSource.apiSource16')
+  apiSource16: string = 'Restricted area';
+
+  change16(inRequest16) {
+    this.apiSource16 = inRequest16.replace('requested', 'granted');
+  }
+
   changeProp6Async() {
     let promise = new Promise((resolve) => {
       setTimeout(() => {
@@ -496,6 +503,31 @@ test('Fail to create facade with invalid characters', (t) => {
   } catch(e) {
     t.is(e.message, 'You must provide valid name and yassiElementsName when using facade');
   }
+});
+
+test('Interact with property owner via communicate', (t) => {
+  class TestDest {
+    @observe('TestSource.apiSource16')
+    apiDest16: Observable<any>;
+  }
+
+  const test1 =new TestSource(); // TODO: To fix the failing test create a new TestSource for this one???
+  const test2 = new TestDest();
+
+  const expectedVals = ['Restricted area', 'Changed from owner', 'change on api request - granted'];
+  const v = new BehaviorSubject<any>(null);
+  test2.apiDest16.subscribe((propVal: string) => {
+    const val = expectedVals.shift();
+    t.is(propVal, val);
+    if (expectedVals.length === 0) {
+      v.complete();
+    }
+  });
+
+  test1.apiSource16 = 'Changed from owner';
+  yassi.communicate('TestSource.apiSource16', 'change16', ['change on api request - requested']);
+
+  return v;
 });
 
 test('registerMiddleware for before yassit', (t) => {

@@ -7,11 +7,16 @@ export enum ElementStatus {
 
 export class StoreElement {
   status: ElementStatus;
+  owner?: any; // TODO: Should it be a weak reference to avoid memory leaks???
   value: any;
   observer?: BehaviorSubject<any> = new BehaviorSubject(undefined);
 
   constructor(status: ElementStatus = ElementStatus.ACTIVE) {
     this.status = status;
+  }
+
+  setOwner(owner: any) {
+    this.owner = this.owner || owner;
   }
 }
 

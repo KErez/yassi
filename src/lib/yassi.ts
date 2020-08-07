@@ -3,7 +3,6 @@ import { catchError, map } from 'rxjs/operators';
 
 import { ElementStatus, StoreElement, yassiStore } from './store';
 
-
 const beforeYassitMiddleware = [];
 const afterYassitMiddleware = [];
 const beforeSelectingMiddleware = [];
@@ -66,7 +65,7 @@ export function overridePropertyDefinition(prototype: any,
    * key - the property name that yassit was attached too
    */
   Object.defineProperty(prototype, key, {
-    set(firstValue: any) { // This set called on first instantiation of the class
+    set(firstValue: any) { // First set called on instantiation of the class
       activateElementIfNeeded(yassiDescriptor);
       Object.defineProperty(this, key, {
         // this - the instance of a 'prototype' class
@@ -86,6 +85,8 @@ export function overridePropertyDefinition(prototype: any,
         },
         enumerable: true,
       });
+      const element = yassiStore.get(yassiDescriptor.name);
+      element.setOwner(this);
       this[key] = firstValue;
     },
     enumerable: true,
@@ -219,6 +220,22 @@ export function _facade(yassiDescriptor: YassiPropertyDescriptor, sourceElementD
     .subscribe((facadeResults: any) => {
       yassiStore.get(yassiDescriptor.name).observer.next(facadeResults);
     });
+}
+
+export function _communicate(yassiPropName: string, apiFunctionName: string, functionParams: any[]) {
+  const element = yassiStore.get(yassiPropName);
+  if (!element) {
+    console.warn(`Yassi - Cannot call owner of ${yassiPropName}, unknown property`);
+    return;
+  }
+  const fn: unknown = element.owner[apiFunctionName];
+  if (!fn || typeof fn !== 'function') {
+    console.warn(`Yassi - ${apiFunctionName} is not a known function of ${yassiPropName} owner object`);
+    return;
+  }
+
+  // TODO: Can we catch errors of wrong params executions and do something here - what???
+  fn.call(element.owner, ...functionParams);
 }
 
 // @ts-ignore
