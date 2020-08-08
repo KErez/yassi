@@ -5,9 +5,11 @@ export declare enum ElementStatus {
 }
 export declare class StoreElement {
     status: ElementStatus;
+    owner?: any;
     value: any;
     observer?: BehaviorSubject<any>;
     constructor(status?: ElementStatus);
+    setOwner(owner: any): void;
 }
 declare class StoreWrapper {
     private store;

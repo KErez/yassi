@@ -2,7 +2,7 @@
 // tslint:exampleDecorator
 
 
-import test from 'ava';
+import {serial as test} from 'ava';
 import { BehaviorSubject, Observable } from 'rxjs';
 
 import yassi, { observe, registerMiddleware, select, yassit } from './exportedApi';
@@ -511,18 +511,20 @@ test('Interact with property owner via communicate', (t) => {
     apiDest16: Observable<any>;
   }
 
-  const test1 =new TestSource(); // TODO: To fix the failing test create a new TestSource for this one???
+  const test1 = new TestSource(); // TODO: To fix the failing test create a new TestSource for this one???
   const test2 = new TestDest();
 
   const expectedVals = ['Restricted area', 'Changed from owner', 'change on api request - granted'];
   const v = new BehaviorSubject<any>(null);
-  test2.apiDest16.subscribe((propVal: string) => {
-    const val = expectedVals.shift();
-    t.is(propVal, val);
-    if (expectedVals.length === 0) {
-      v.complete();
-    }
-  });
+  test2.apiDest16
+    .subscribe((propVal: string) => {
+      const val = expectedVals.shift();
+      t.is(propVal, val);
+      if (expectedVals.length === 0) {
+        // subscription.unsubscribe();
+        v.complete();
+      }
+    });
 
   test1.apiSource16 = 'Changed from owner';
   yassi.communicate('TestSource.apiSource16', 'change16', ['change on api request - requested']);
