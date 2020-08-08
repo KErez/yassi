@@ -8,11 +8,15 @@ export enum ElementStatus {
 export class StoreElement {
   status: ElementStatus;
   owner?: any; // TODO: Should it be a weak reference to avoid memory leaks???
+  ownerPrototype: any;
   value: any;
   observer?: BehaviorSubject<any> = new BehaviorSubject(undefined);
+  endpoints: Map<string, (...params) => void>;
 
-  constructor(status: ElementStatus = ElementStatus.ACTIVE) {
+  constructor(status: ElementStatus = ElementStatus.ACTIVE, ownerProto?: any) {
     this.status = status;
+    this.ownerPrototype = ownerProto;
+    this.endpoints = new Map();
   }
 
   setOwner(owner: any) {
@@ -55,6 +59,17 @@ class StoreWrapper {
         elem.status = ElementStatus.ACTIVE;
       }
     }
+  }
+
+  findElementsByOwner(target: any): StoreElement[] {
+    const elements: StoreElement[] = [];
+    for (const val of this.store.values()) {
+      if (val.ownerPrototype === target) {
+        elements.push(val);
+      }
+    }
+
+    return elements;
   }
 
   ////// Deprecate methods

@@ -5,7 +5,7 @@
 import {serial as test} from 'ava';
 import { BehaviorSubject, Observable } from 'rxjs';
 
-import yassi, { observe, registerMiddleware, select, yassit } from './exportedApi';
+import yassi, { endpoint, observe, registerMiddleware, select, yassit } from './exportedApi';
 import { yassiStore } from './store';
 
 // @ts-ignore
@@ -66,6 +66,7 @@ class TestSource {
   @yassit('TestSource.apiSource16')
   apiSource16: string = 'Restricted area';
 
+  @endpoint()
   change16(inRequest16) {
     this.apiSource16 = inRequest16.replace('requested', 'granted');
   }

@@ -59,7 +59,7 @@ export function overridePropertyDefinition(prototype: any,
                                     key: string,
                                     yassiDescriptor: YassiPropertyDescriptor) {
   yassiStore.ensureUniqueuness(yassiDescriptor.name);
-  yassiStore.set(yassiDescriptor.name, new StoreElement(ElementStatus.ACTIVE));
+  yassiStore.set(yassiDescriptor.name, new StoreElement(ElementStatus.ACTIVE, prototype));
   /**
    * prototype - The constructor of the class that declared yassit on a property
    * key - the property name that yassit was attached too
@@ -222,15 +222,24 @@ export function _facade(yassiDescriptor: YassiPropertyDescriptor, sourceElementD
     });
 }
 
+export function _registerEndpoint(target: any, key: string) {
+  const elements: StoreElement[] = yassiStore.findElementsByOwner(target);
+  for (const element of elements) {
+    if (element && !element.endpoints.has(key)) {
+      element.endpoints.set(key, target[key]);
+    }
+  }
+}
+
 export function _communicate(yassiPropName: string, apiFunctionName: string, functionParams: any[]) {
   const element = yassiStore.get(yassiPropName);
   if (!element) {
     console.warn(`Yassi - Cannot call owner of ${yassiPropName}, unknown property`);
     return;
   }
-  const fn: unknown = element.owner[apiFunctionName];
+  const fn: unknown = element.endpoints.get(apiFunctionName);
   if (!fn || typeof fn !== 'function') {
-    console.warn(`Yassi - ${apiFunctionName} is not a known function of ${yassiPropName} owner object`);
+    console.warn(`Yassi - ${apiFunctionName} is not a known endpoint of ${yassiPropName} owner object`);
     return;
   }
 

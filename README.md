@@ -161,6 +161,61 @@ class AnotherComponent {
 ``` 
 
 Any change to one of the properties in the store `firstName`, `lastName` or `birthDate` will trigger a print of the new version of `userInfo`
+
+## Communicate with property's owner
+As mentioned before, one of the key concept of Yassi is publicly readable/privately writable properties which mean that only the property's owner may alter the property.  
+There are cases where one would like to change or request a change from outside (i.e. not from the owner) to a property that owned by other object.  
+In this case Yassi introduce `yassi.communicate` which allows anyone in the system to request to communicate with the owner in some manner.  
+How this communication will be done and what it will do is still in the control of the property's owner thus keeping the key concept of privately writable intact.  
+
+#### How it is done
+Declare endpoint function in the owner class/object with `@endpoint`.  
+Note that the `@endpoint` functions must be declared after `@yassit` for the store to recognize it.  
+Then call for `communicate()` with the owner's property name (this is how Yassi recognize the owner you want to communicate with), the endpoint name and array of arguments that will passed to endpoint.
+
+Example:
+```typescript
+import {yassit, endpoint} from 'yassi';
+
+class ServerUserInfo {
+  @yassit('firstName')
+  firstName: string = 'John';
+  
+  @yassit('lastName')
+  lastName: string = 'Doe';
+
+  @yassit('birthDate')
+  birthDate: number = 946677600000;
+  
+  @yassit('userType')
+  userType: string = 'visitor'; // Not an enum, I know. It is still an example only
+
+  @endpoint()
+  changeUserType(type: string, requester: any) {
+    if (!authorizedUsers.get(requester)) {
+      return;
+    }
+    if(type !== 'visitor' && type !== 'user') {
+      return;
+    }
+    this.userType = type;
+  }
+}
+```
+
+And somewhere in the code you can request the endpoint from another component:  
+```typescript
+import {yassi} from yassi;
+
+function someFunc() {
+  // Do many things or not
+  yassi.communicate('userType', 'changeUserType', ['user', currentUser]);  
+}
+```
+The `communicate` function takes one of the stored properties name of the owner as first argument, it want to communicate with (thus it could be any other name such as `firstName`/`lastName`/`birthDate`).  
+It takes the name of the owner's endpoint (i.e. the name of the function) that we like to execute.  
+And the expected argument the function need as input.
+The control of what is bean done is still at the hand of the owner. 
 ## API
 * <strong>@yassit(name: string)</strong> - prefixed on a class's property that you like to add it's values to the store upon instantiation
 * <strong>yassi.yassit(name: string, owner?: any, name?: string)</strong> - without annotation the `owner` and `name` are object and it's property in correspond that we like to store
@@ -170,6 +225,7 @@ Any change to one of the properties in the store `firstName`, `lastName` or `bir
 * <strong>yassi.observe(name: string, targetObj: object, targetProp: string)</strong> - without annotation, the targetObj and targetProp are object and it's property in correspond that we like to apply the store data on reactively.  
 * <strong>facade(name: string, yassiElementsName: string[], fn: (yassiElementsValue: any[]) => any)</strong> - The facade results will be stored in the store under the `name` entry and will execute the `fn` on each change on one of the stored values represented by `yassiElementsName`
 * <strong>registerMiddleware(action: string, position: string, fn: (proto, key, val) => void = null)</strong> - Register a middleware function that will execute on the target action (either before or after it). Good place to execute loggers or monitoring tools.
+* <strong>communicate(yassiPropName: string, endpointName: string, functionParams: any[])</strong> - execute an endpoint of name `endpointName` of the owner of `yassiPropName` with the given parameters.
  
 ## Middlewares
 You can register middleware functions that will be triggered synchronously before/after the yassi decorator apply

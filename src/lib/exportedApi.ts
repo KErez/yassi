@@ -1,6 +1,6 @@
 import {
   _communicate,
-  _facade,
+  _facade, _registerEndpoint,
   _registerMiddleware, _yassit,
   overrideSelectPropertyDefinition,
   YassiPropertyDescriptor
@@ -67,6 +67,12 @@ export function observe(name) {
   return function (target: any, key: string) {
     overrideSelectPropertyDefinition(target, key, new YassiPropertyDescriptor(name), true)
   };
+}
+
+export function endpoint() {
+  return function (target: any, key: string) {
+    _registerEndpoint(target, key);
+  }
 }
 
 export function registerMiddleware(action: string, position: string, fn: (proto, key, val) => void = null) {

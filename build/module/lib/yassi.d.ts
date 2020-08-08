@@ -15,4 +15,5 @@ export declare function overridePropertyDefinition(prototype: any, key: string, 
 export declare function overrideSelectPropertyDefinition(prototype: any, key: string, yassiDescriptor: YassiPropertyDescriptor, obsrv?: boolean): void;
 export declare function _registerMiddleware(action: string, position: string, fn?: (proto: any, key: any, val: any) => void): void;
 export declare function _facade(yassiDescriptor: YassiPropertyDescriptor, sourceElementDescriptors: YassiPropertyDescriptor[], fn: (yassiElementsValue: any[]) => any): void;
+export declare function _registerEndpoint(target: any, key: string): void;
 export declare function _communicate(yassiPropName: string, apiFunctionName: string, functionParams: any[]): void;
