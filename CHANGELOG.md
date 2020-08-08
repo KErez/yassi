@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.8.2"></a>
+## [0.8.2](https://github.com/KErez/yassi/compare/v0.8.1...v0.8.2) (2020-08-08)
+
+
+
 <a name="0.8.1"></a>
 ## [0.8.1](https://github.com/KErez/yassi/compare/v0.7.9...v0.8.1) (2020-08-01)
 
