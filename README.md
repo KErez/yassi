@@ -25,7 +25,7 @@ state's properties from multiple locations which increase code complexity and ma
 
 Yassi approach is different.  
 <em><h4>It is so simple that you will want and should use it from your first line of code!!!</h4></em>   
-It is publicly readable but privately writable which means everybody can access the property but only the owner can change it
+It is publicly readable but privately writable which means everybody can access the property but **only the owner can change it**
  
 Yassi key features are:
 1. Unopinionated store - you don't need reducers or actions. Just mark the property you want to store with @yassit and you good to go
@@ -35,6 +35,7 @@ Yassi key features are:
 1. Lean and mean - with <em>facades</em> you may create store entries that cannot be changed directly and only changes as a reaction to store changes. 
 This behaviour allowing you to keep the store as lean as possible.
 1. Reactive store as well as not - You may get a property's value from the store using @select or use @observe to get a reactive observable on the given property
+1. When needed, you may commiunicate with a property's owner via endpoints to execute some exported actions on the owner's properties
 1. You can register any middleware to Yassi's operators, allowing you to create powerfull tools on top of Yassi.  
 The following middleware are available:
   * beforeStore
@@ -42,16 +43,13 @@ The following middleware are available:
   * beforeRetrieve
   * afterRetrieve
 
-##### Note
-Yassi is still in alfa mode.
-
 ## Installation
 npm install --save yassi
 
 ## Usage
 * Import Yassi 
-* Declare the properties that you like to store by add the @yassit('propertyNameInStore') before the declartion of the property or use it without annotation as follow - yassit('propertyNameInStore', ownerObject, ownerPropertyName)
-* On another class, create a property and declare it with either @select or @observe to read the property from the store.
+* Declare the properties that you like to store by add the `@yassit('propertyNameInStore')` before the declaration of the property or use it without annotation as follow - `yassit('propertyNameInStore', ownerObject, ownerPropertyName)`
+* On another class, create a property and declare it with either `@select` or `@observe` to read the property from the store.
 
 ```typescript
 import {yassit} from 'yassi';
@@ -65,7 +63,7 @@ class MyCoolClass {
 }
 ```
 That's it, These properties are stored on class instantiation!!!
-They are also publicly readable which mean **_only instances of MyCoolClass can change them_** but everyone can read them  
+They are also publicly readable but privately writable which mean **_only instances of MyCoolClass can change them_** but everyone can read them  
 Let's see how to use them in other component
 ```typescript
 import {select} from 'yassi';
@@ -212,10 +210,12 @@ function someFunc() {
   yassi.communicate('userType', 'changeUserType', ['user', currentUser]);  
 }
 ```
-The `communicate` function takes one of the stored properties name of the owner as first argument, it want to communicate with (thus it could be any other name such as `firstName`/`lastName`/`birthDate`).  
-It takes the name of the owner's endpoint (i.e. the name of the function) that we like to execute.  
-And the expected argument the function need as input.
-The control of what is bean done is still at the hand of the owner. 
+The `communicate` function takes the following arguments:  
+1. The owner's stored property name in which we like to communicate with (note it could be any other name declared on the owner such as `firstName`/`lastName`/`birthDate`).  
+1. The name of the owner's endpoint that we like to execute meaning the name of the function declared by `@endpoint`.  
+1. The expected arguments the function need as input.  
+
+Note that the control of what is bean done is still at the hand of the owner. 
 ## API
 * <strong>@yassit(name: string)</strong> - prefixed on a class's property that you like to add it's values to the store upon instantiation
 * <strong>yassi.yassit(name: string, owner?: any, name?: string)</strong> - without annotation the `owner` and `name` are object and it's property in correspond that we like to store
