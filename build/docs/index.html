@@ -159,7 +159,7 @@
   birthDate: <span class="hljs-built_in">number</span> = <span class="hljs-number">946677600000</span>; 
 }</code></pre>
 				<p>If we want a full representation of the user info we should create facade instead of creating a new property owned by some object that can
-				be use by everywhere</p>
+				be use everywhere</p>
 				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> {yassi} <span class="hljs-keyword">from</span> <span class="hljs-string">'yassi'</span>;
 
 yassi.facade(<span class="hljs-string">'userInfo'</span>, [<span class="hljs-string">'firstName'</span>, <span class="hljs-string">'lastName'</span>, <span class="hljs-string">'birthDate'</span>], <span class="hljs-function">(<span class="hljs-params">[fName, lName, bDate]</span>) =&gt;</span> {
@@ -186,6 +186,46 @@ yassi.facade(<span class="hljs-string">'userInfo'</span>, [<span class="hljs-str
   }
 }</code></pre>
 				<p>Any change to one of the properties in the store <code>firstName</code>, <code>lastName</code> or <code>birthDate</code> will trigger a print of the new version of <code>userInfo</code></p>
+				<h2 id="communicate-with-property-s-owner">Communicate with property&#39;s owner</h2>
+				<p>As mentioned before, one of the key concept of Yassi is publicly readable/privately writable properties which mean that only the property&#39;s owner may alter the property.<br>There are cases where one would like to change or request a change from outside (i.e. not from the owner) to a property that owned by other object.<br>In this case Yassi introduce <code>yassi.communicate</code> which allows anyone in the system to request to communicate with the owner in some manner.<br>How this communication will be done and what it will do is still in the control of the property&#39;s owner thus keeping the key concept of privately writable intact.  </p>
+				<h4 id="how-it-is-done">How it is done</h4>
+				<p>Declare endpoint function in the owner class/object with <code>@endpoint</code>.<br>Note that the <code>@endpoint</code> functions must be declared after <code>@yassit</code> for the store to recognize it.<br>Then call for <code>communicate()</code> with the owner&#39;s property name (this is how Yassi recognize the owner you want to communicate with), the endpoint name and array of arguments that will passed to endpoint.</p>
+				<p>Example:</p>
+				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> {yassit, endpoint} <span class="hljs-keyword">from</span> <span class="hljs-string">'yassi'</span>;
+
+<span class="hljs-keyword">class</span> ServerUserInfo {
+  <span class="hljs-meta">@yassit</span>(<span class="hljs-string">'firstName'</span>)
+  firstName: <span class="hljs-built_in">string</span> = <span class="hljs-string">'John'</span>;
+
+  <span class="hljs-meta">@yassit</span>(<span class="hljs-string">'lastName'</span>)
+  lastName: <span class="hljs-built_in">string</span> = <span class="hljs-string">'Doe'</span>;
+
+  <span class="hljs-meta">@yassit</span>(<span class="hljs-string">'birthDate'</span>)
+  birthDate: <span class="hljs-built_in">number</span> = <span class="hljs-number">946677600000</span>;
+
+  <span class="hljs-meta">@yassit</span>(<span class="hljs-string">'userType'</span>)
+  userType: <span class="hljs-built_in">string</span> = <span class="hljs-string">'visitor'</span>; <span class="hljs-comment">// Not an enum, I know. It is still an example only</span>
+
+  <span class="hljs-meta">@endpoint</span>()
+  changeUserType(<span class="hljs-keyword">type</span>: <span class="hljs-built_in">string</span>, requester: <span class="hljs-built_in">any</span>) {
+    <span class="hljs-keyword">if</span> (!authorizedUsers.get(requester)) {
+      <span class="hljs-keyword">return</span>;
+    }
+    <span class="hljs-keyword">if</span>(<span class="hljs-keyword">type</span> !== <span class="hljs-string">'visitor'</span> &amp;&amp; <span class="hljs-keyword">type</span> !== <span class="hljs-string">'user'</span>) {
+      <span class="hljs-keyword">return</span>;
+    }
+    <span class="hljs-keyword">this</span>.userType = <span class="hljs-keyword">type</span>;
+  }
+}</code></pre>
+				<p>And somewhere in the code you can request the endpoint from another component:  </p>
+				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> {yassi} <span class="hljs-keyword">from</span> yassi;
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">someFunc</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-comment">// Do many things or not</span>
+  yassi.communicate(<span class="hljs-string">'userType'</span>, <span class="hljs-string">'changeUserType'</span>, [<span class="hljs-string">'user'</span>, currentUser]);  
+}</code></pre>
+				<p>The <code>communicate</code> function takes one of the stored properties name of the owner as first argument, it want to communicate with (thus it could be any other name such as <code>firstName</code>/<code>lastName</code>/<code>birthDate</code>).<br>It takes the name of the owner&#39;s endpoint (i.e. the name of the function) that we like to execute.<br>And the expected argument the function need as input.
+				The control of what is bean done is still at the hand of the owner. </p>
 				<h2 id="api">API</h2>
 				<ul>
 					<li><strong>@yassit(name: string)</strong> - prefixed on a class&#39;s property that you like to add it&#39;s values to the store upon instantiation</li>
@@ -194,7 +234,9 @@ yassi.facade(<span class="hljs-string">'userInfo'</span>, [<span class="hljs-str
 					<li><strong>yassi.select(name: string, targetObj: object, targetProp: string)</strong> - without annotation, the targetObj and targetProp are object and it&#39;s property in correspond that we like to apply the store data on.</li>
 					<li><strong>@observe(name: string)</strong> - prefixed on a class&#39;s property when you want to observe a store propety via observable. You should subscribe to that observable to get any change in value.</li>
 					<li><strong>yassi.observe(name: string, targetObj: object, targetProp: string)</strong> - without annotation, the targetObj and targetProp are object and it&#39;s property in correspond that we like to apply the store data on reactively.  </li>
-					<li><string>facade(name: string, yassiElementsName: string[], fn: (yassiElementsValue: any[]) =&gt; any)</strong> - The facade results will be stored in the store under the <code>name</code> entry and will execute the <code>fn</code> on each change on one of the stored values represented by <code>yassiElementsName</code></li>
+					<li><strong>facade(name: string, yassiElementsName: string[], fn: (yassiElementsValue: any[]) =&gt; any)</strong> - The facade results will be stored in the store under the <code>name</code> entry and will execute the <code>fn</code> on each change on one of the stored values represented by <code>yassiElementsName</code></li>
+					<li><strong>registerMiddleware(action: string, position: string, fn: (proto, key, val) =&gt; void = null)</strong> - Register a middleware function that will execute on the target action (either before or after it). Good place to execute loggers or monitoring tools.</li>
+					<li><strong>communicate(yassiPropName: string, endpointName: string, functionParams: any[])</strong> - execute an endpoint of name <code>endpointName</code> of the owner of <code>yassiPropName</code> with the given parameters.</li>
 				</ul>
 				<h2 id="middlewares">Middlewares</h2>
 				<p>You can register middleware functions that will be triggered synchronously before/after the yassi decorator apply</p>
@@ -277,7 +319,13 @@ registerMiddleware(<span class="hljs-string">'yassit'</span>, <span class="hljs-
 						<a href="globals.html#default_logger_middleware" class="tsd-kind-icon">DEFAULT_<wbr>LOGGER_<wbr>MIDDLEWARE</a>
 					</li>
 					<li class=" tsd-kind-function">
+						<a href="globals.html#_communicate" class="tsd-kind-icon">_communicate</a>
+					</li>
+					<li class=" tsd-kind-function">
 						<a href="globals.html#_facade" class="tsd-kind-icon">_facade</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#_registerendpoint" class="tsd-kind-icon">_register<wbr>Endpoint</a>
 					</li>
 					<li class=" tsd-kind-function">
 						<a href="globals.html#_registermiddleware" class="tsd-kind-icon">_register<wbr>Middleware</a>
@@ -287,6 +335,9 @@ registerMiddleware(<span class="hljs-string">'yassit'</span>, <span class="hljs-
 					</li>
 					<li class=" tsd-kind-function tsd-is-not-exported">
 						<a href="globals.html#activateelementifneeded" class="tsd-kind-icon">activate<wbr>Element<wbr>IfNeeded</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#endpoint" class="tsd-kind-icon">endpoint</a>
 					</li>
 					<li class=" tsd-kind-function tsd-is-not-exported">
 						<a href="globals.html#executeafterselectmiddleware" class="tsd-kind-icon">execute<wbr>After<wbr>Select<wbr>Middleware</a>

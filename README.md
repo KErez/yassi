@@ -9,7 +9,7 @@ Yassi store's properties have unique single owner thus reduce code complexity an
 
 While there are many stores out there storing your application state well enough such as redux, flux and others, they are all too cumbersome and opinionated.  
 Using these libraries requires too much boilerplate.  
-It is even recommended by top influential developers as well as by Redux FAQ page to use these libraries only when your state become complex.
+It is even recommended by top influential developers, such as Dan Abramov on his post [You might not need redux](https://medium.com/@dan_abramov/you-might-not-need-redux-be46360cf367), as well as by Redux [FAQ](https://redux.js.org/faq/general#when-should-i-use-redux) page to use these libraries only when your state become complex.
  
 As Pete Hunt, one of the early contributors to React, says:
 
