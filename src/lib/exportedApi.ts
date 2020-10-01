@@ -37,9 +37,7 @@ class Yassi{
     _communicate(yassiPropName, apiFunctionName, functionParams);
   }
 }
-// The default exported object is the support to none annotated solution
-const yassi = new Yassi();
-export default yassi;
+export const yassi = new Yassi();
 
 // Function exported from here are annotation solutions
 export function yassit(name: string, owner?: any, ownerProp?: string) {

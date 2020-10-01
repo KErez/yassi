@@ -5,7 +5,7 @@
 import {serial as test} from 'ava';
 import { BehaviorSubject, Observable } from 'rxjs';
 
-import yassi, { endpoint, observe, registerMiddleware, select, yassit } from './exportedApi';
+import { yassi, endpoint, observe, registerMiddleware, select, yassit } from './exportedApi';
 import { yassiStore } from './store';
 
 // @ts-ignore
