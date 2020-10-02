@@ -1,0 +1,456 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>yassi</title>
+	<meta name="description" content="">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="assets/js/search.js" data-base=".">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="index.html" class="title">yassi</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
+							<input type="checkbox" id="tsd-filter-only-exported" />
+							<label class="tsd-widget" for="tsd-filter-only-exported">Only exported</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="globals.html">Globals</a>
+				</li>
+			</ul>
+			<h1> yassi</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<div class="tsd-panel tsd-typography">
+				<h1 id="yassi">yassi</h1>
+				<p>Yet Another Simple Store Implementation</p>
+				<h2 id="overview">Overview</h2>
+				<p>Yassi is a very simple javascript store implementation.<br>Yassi keeps your store lean and mean while allowing data extensions via facades.<br>Yassi store&#39;s properties have unique single owner thus reduce code complexity and maintenance.</p>
+				<p>While there are many stores out there storing your application state well enough such as redux, flux and others, they are all too cumbersome and opinionated.<br>Using these libraries requires too much boilerplate.<br>It is even recommended by top influential developers, such as Dan Abramov on his post <a href="https://medium.com/@dan_abramov/you-might-not-need-redux-be46360cf367">You might not need redux</a>, as well as by Redux <a href="https://redux.js.org/faq/general#when-should-i-use-redux">FAQ</a> page to use these libraries only when your state become complex.</p>
+				<p>As Pete Hunt, one of the early contributors to React, says:</p>
+				<h3><em>You'll know when you need Flux. If you aren't sure if you need it, you don't need it.</em></h3>
+				<p>Similarly, Dan Abramov, one of the creators of Redux, says:</p>
+				<h3><em>I would like to amend this: don't use Redux until you have problems with vanilla React.</em></h3>
+				<p>In addition, redux, flux and others provide public access to all their properties from anyone that can access the store.<br>In many cases and especially when the project grows, the result of such broad access behaviour is the manipulation of single application
+				state&#39;s properties from multiple locations which increase code complexity and maintenance hassle.    </p>
+				<p>Yassi approach is different.<br><em><h4>It is so simple that you will want and should use it from your first line of code!!!</h4></em><br>It is publicly readable but privately writable which means everybody can access the property but <strong>only the owner can change it</strong></p>
+				<p>Yassi key features are:</p>
+				<ol>
+					<li>Unopinionated store - you don&#39;t need reducers or actions. Just mark the property you want to store with @yassit and you good to go</li>
+					<li>Don&#39;t want annotation? No problem, use the non annotated version of Yassi&#39;s operators.</li>
+					<li>Publicly readable - all properties in the store can be accessed by any consumer.</li>
+					<li>Privately writeable - only the owner of the property (i.e the class or object own the property) can apply changes to the property.</li>
+					<li>Lean and mean - with <em>facades</em> you may create store entries that cannot be changed directly and only changes as a reaction to store changes.
+					This behaviour allowing you to keep the store as lean as possible.</li>
+					<li>Reactive store as well as not - You may get a property&#39;s value from the store using @select or use @observe to get a reactive observable on the given property</li>
+					<li>When needed, you may commiunicate with a property&#39;s owner via endpoints to execute some exported actions on the owner&#39;s properties</li>
+					<li>You can register any middleware to Yassi&#39;s operators, allowing you to create powerfull tools on top of Yassi.<br>The following middleware are available:<ul>
+							<li>beforeStore</li>
+							<li>afterStore</li>
+							<li>beforeRetrieve</li>
+							<li>afterRetrieve</li>
+						</ul>
+					</li>
+				</ol>
+				<h2 id="installation">Installation</h2>
+				<p>npm install --save yassi</p>
+				<h2 id="usage">Usage</h2>
+				<ul>
+					<li>Import Yassi </li>
+					<li>Declare the properties that you like to store by add the <code>@yassit(&#39;propertyNameInStore&#39;)</code> before the declaration of the property or use it without annotation as follow - <code>yassit(&#39;propertyNameInStore&#39;, ownerObject, ownerPropertyName)</code></li>
+					<li>On another class, create a property and declare it with either <code>@select</code> or <code>@observe</code> to read the property from the store.</li>
+				</ul>
+				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> {yassit} <span class="hljs-keyword">from</span> <span class="hljs-string">'yassi'</span>;
+
+<span class="hljs-keyword">class</span> MyCoolClass {
+  <span class="hljs-meta">@yassit</span>(<span class="hljs-string">'srcNumProp1'</span>)
+  numProp1: <span class="hljs-built_in">number</span>;
+
+  <span class="hljs-meta">@yassit</span>(<span class="hljs-string">'srcNumProp2'</span>)
+  numProp2: <span class="hljs-built_in">number</span> = <span class="hljs-number">2</span>;
+}</code></pre>
+				<p>That&#39;s it, These properties are stored on class instantiation!!!
+				They are also publicly readable but privately writable which mean <strong><em>only instances of MyCoolClass can change them</em></strong> but everyone can read them<br>Let&#39;s see how to use them in other component</p>
+				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> {select} <span class="hljs-keyword">from</span> <span class="hljs-string">'yassi'</span>;
+
+<span class="hljs-keyword">class</span> AnotherComponent {
+  prop1: <span class="hljs-built_in">string</span>;
+
+  <span class="hljs-meta">@select</span>(<span class="hljs-string">'srcNumProp1'</span>)
+  propFromStore: <span class="hljs-built_in">number</span>;
+}</code></pre>
+				<p>Again, that&#39;s it!!!
+					Any change to <code>MyCoolClass.numProp1</code> will reflect on <code>AnotherComponent.propFromStore</code>.
+				Note that <code>AnotherComponent.propFromStore</code> is a read only property and you cannot change it here, only via <code>MyCoolClass</code></p>
+				<p>Want reactive??!
+				Use <code>@observe</code> instead of <code>@select</code></p>
+				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> {observe} <span class="hljs-keyword">from</span> <span class="hljs-string">'yassi'</span>;
+
+<span class="hljs-keyword">class</span> AnotherComponent {
+  prop1: <span class="hljs-built_in">string</span>;
+
+  <span class="hljs-meta">@observe</span>(<span class="hljs-string">'srcNumProp1'</span>) 
+  propFromStore: Observable&lt;<span class="hljs-built_in">number</span>&gt;;
+}</code></pre>
+				<p>Now any change to <code>MyCoolClass.numProp1</code> will reflect reactivly on <code>AnotherComponent.propFromStore</code> </p>
+				<h2 id="introducing-facades">Introducing Facades</h2>
+				<p>One of the key concept of Yassi is to make the store lean and simple. To do so I created Yassi&#39;s Facades.</p>
+				<p>The idea of facades is to encourage users to use the store (via yassit) only for core data items and any
+				derived properties should come in the form of Facades. </p>
+				<p> In Yassi, properties are stored by the owner thus only the owner object may change their values. Facades are stored properties that does not
+				have an owner and therefore cannot change directly (to be precise, they have owner but it is privately owned by Yassi).</p>
+				<p> Instead Facades listen to changes on one or more stored properties and triggers a function provided by the user on that changes to
+				create a new result from these stored properties </p>
+				<p>Let&#39;s see how Facades works:</p>
+				<p>Assume we have the following class with its yassit:</p>
+				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> {yassit} <span class="hljs-keyword">from</span> <span class="hljs-string">'yassi'</span>;
+
+<span class="hljs-keyword">class</span> ServerUserInfo {
+  <span class="hljs-meta">@yassit</span>(<span class="hljs-string">'firstName'</span>)
+  firstName: <span class="hljs-built_in">string</span> = <span class="hljs-string">'John'</span>;
+
+  <span class="hljs-meta">@yassit</span>(<span class="hljs-string">'lastName'</span>)
+  lastName: <span class="hljs-built_in">string</span> = <span class="hljs-string">'Doe'</span>;
+
+  <span class="hljs-meta">@yassit</span>(<span class="hljs-string">'birthDate'</span>)
+  birthDate: <span class="hljs-built_in">number</span> = <span class="hljs-number">946677600000</span>; 
+}</code></pre>
+				<p>If we want a full representation of the user info we should create facade instead of creating a new property owned by some object that can
+				be use everywhere</p>
+				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> {yassi} <span class="hljs-keyword">from</span> <span class="hljs-string">'yassi'</span>;
+
+yassi.facade(<span class="hljs-string">'userInfo'</span>, [<span class="hljs-string">'firstName'</span>, <span class="hljs-string">'lastName'</span>, <span class="hljs-string">'birthDate'</span>], <span class="hljs-function">(<span class="hljs-params">[fName, lName, bDate]</span>) =&gt;</span> {
+  <span class="hljs-keyword">return</span> {
+    first: fName,
+    last: lName,
+    full: <span class="hljs-string">`<span class="hljs-subst">${fName}</span> <span class="hljs-subst">${lName}</span>`</span>,
+    birth: <span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>(bDate),
+  }
+});</code></pre>
+				<p>Now the store has an entry <code>userInfo</code> which will hold the entire user info object but the beauty is that this entry is not changeable by
+				anyone, it can only change as a reaction to changes on the source properties it was declared on!!!</p>
+				<p>An example usage of that facade will be similar to any other stored property</p>
+				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> {observe} <span class="hljs-keyword">from</span> <span class="hljs-string">'yassi'</span>;
+
+<span class="hljs-keyword">class</span> AnotherComponent {  
+  <span class="hljs-meta">@observe</span>(<span class="hljs-string">'userInfo'</span>) 
+  myUserInfo: Observable&lt;object&gt;;
+
+  printUserInfo() {
+    <span class="hljs-keyword">this</span>.myUserInfo.subscribe(<span class="hljs-function">(<span class="hljs-params">userInfo: object</span>) =&gt;</span> {
+      <span class="hljs-built_in">console</span>.log(<span class="hljs-built_in">JSON</span>.stringify(userInfo));
+    })
+  }
+}</code></pre>
+				<p>Any change to one of the properties in the store <code>firstName</code>, <code>lastName</code> or <code>birthDate</code> will trigger a print of the new version of <code>userInfo</code></p>
+				<p>The return value from a faced will continue in the facade chain to any listener declared using <code>select</code> or <code>observe</code>.<br>A user can control whether the facade will continue the chain or not by returning an object contains the <code>breakFacadeChain</code> operator and the <code>payload</code> operator as follow:  </p>
+				<pre><code class="language-typescript">{
+  breakFacadeChain: <span class="hljs-built_in">boolean</span>,
+  payload: <span class="hljs-built_in">any</span>
+}</code></pre>
+				<p>If the <code>breakFacadeChain</code> is true, the chain will stop and the facade result will not continue to its listeners.<br>If the <code>breakFacadeChain</code> is missing (<code>null</code> or <code>undefined</code>), the entire return value will be sent to the listeners.<br>If the <code>breakFacadeChain</code> is false, the chain will continue and the facade will send the value of <code>payload</code> to the listeners.  </p>
+				<h2 id="communicate-with-property-s-owner">Communicate with property&#39;s owner</h2>
+				<p>As mentioned before, one of the key concept of Yassi is publicly readable/privately writable properties which mean that only the property&#39;s owner may alter the property.<br>There are cases where one would like to change or request a change from outside (i.e. not from the owner) to a property that owned by other object.<br>In this case Yassi introduce <code>yassi.communicate</code> which allows anyone in the system to request to communicate with the owner in some manner.<br>How this communication will be done and what it will do is still in the control of the property&#39;s owner thus keeping the key concept of privately writable intact.  </p>
+				<h4 id="how-it-is-done">How it is done</h4>
+				<p>Declare endpoint function in the owner class/object with <code>@endpoint</code>.<br>Note that the <code>@endpoint</code> functions must be declared after <code>@yassit</code> for the store to recognize it.<br>Then call for <code>communicate()</code> with the owner&#39;s property name (this is how Yassi recognize the owner you want to communicate with), the endpoint name and array of arguments that will passed to endpoint.</p>
+				<p>Example:</p>
+				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> {yassit, endpoint} <span class="hljs-keyword">from</span> <span class="hljs-string">'yassi'</span>;
+
+<span class="hljs-keyword">class</span> ServerUserInfo {
+  <span class="hljs-meta">@yassit</span>(<span class="hljs-string">'firstName'</span>)
+  firstName: <span class="hljs-built_in">string</span> = <span class="hljs-string">'John'</span>;
+
+  <span class="hljs-meta">@yassit</span>(<span class="hljs-string">'lastName'</span>)
+  lastName: <span class="hljs-built_in">string</span> = <span class="hljs-string">'Doe'</span>;
+
+  <span class="hljs-meta">@yassit</span>(<span class="hljs-string">'birthDate'</span>)
+  birthDate: <span class="hljs-built_in">number</span> = <span class="hljs-number">946677600000</span>;
+
+  <span class="hljs-meta">@yassit</span>(<span class="hljs-string">'userType'</span>)
+  userType: <span class="hljs-built_in">string</span> = <span class="hljs-string">'visitor'</span>; <span class="hljs-comment">// Not an enum, I know. It is still an example only</span>
+
+  <span class="hljs-meta">@endpoint</span>()
+  changeUserType(<span class="hljs-keyword">type</span>: <span class="hljs-built_in">string</span>, requester: <span class="hljs-built_in">any</span>) {
+    <span class="hljs-keyword">if</span> (!authorizedUsers.get(requester)) {
+      <span class="hljs-keyword">return</span>;
+    }
+    <span class="hljs-keyword">if</span>(<span class="hljs-keyword">type</span> !== <span class="hljs-string">'visitor'</span> &amp;&amp; <span class="hljs-keyword">type</span> !== <span class="hljs-string">'user'</span>) {
+      <span class="hljs-keyword">return</span>;
+    }
+    <span class="hljs-keyword">this</span>.userType = <span class="hljs-keyword">type</span>;
+  }
+}</code></pre>
+				<p>And somewhere in the code you can request the endpoint from another component:  </p>
+				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> {yassi} <span class="hljs-keyword">from</span> yassi;
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">someFunc</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-comment">// Do many things or not</span>
+  yassi.communicate(<span class="hljs-string">'userType'</span>, <span class="hljs-string">'changeUserType'</span>, [<span class="hljs-string">'user'</span>, currentUser]);  
+}</code></pre>
+				<p>The <code>communicate</code> function takes the following arguments:  </p>
+				<ol>
+					<li>The owner&#39;s stored property name in which we like to communicate with (note it could be any other name declared on the owner such as <code>firstName</code>/<code>lastName</code>/<code>birthDate</code>).  </li>
+					<li>The name of the owner&#39;s endpoint that we like to execute meaning the name of the function declared by <code>@endpoint</code>.  </li>
+					<li>The expected arguments the function need as input.  </li>
+				</ol>
+				<p>Note that the control of what is bean done is still at the hand of the owner. </p>
+				<h2 id="api">API</h2>
+				<ul>
+					<li><strong>@yassit(name: string)</strong> - prefixed on a class&#39;s property that you like to add it&#39;s values to the store upon instantiation</li>
+					<li><strong>yassi.yassit(name: string, owner?: any, name?: string)</strong> - without annotation the <code>owner</code> and <code>name</code> are object and it&#39;s property in correspond that we like to store</li>
+					<li><strong>@select(name: string)</strong> - prefixed on a class&#39;s property when you want to get a store value of named property</li>
+					<li><strong>yassi.select(name: string, targetObj: object, targetProp: string)</strong> - without annotation, the targetObj and targetProp are object and it&#39;s property in correspond that we like to apply the store data on.</li>
+					<li><strong>@observe(name: string)</strong> - prefixed on a class&#39;s property when you want to observe a store propety via observable. You should subscribe to that observable to get any change in value.</li>
+					<li><strong>yassi.observe(name: string, targetObj: object, targetProp: string)</strong> - without annotation, the targetObj and targetProp are object and it&#39;s property in correspond that we like to apply the store data on reactively.  </li>
+					<li><strong>facade(name: string, yassiElementsName: string[], fn: (yassiElementsValue: any[]) =&gt; any)</strong> - The facade results will be stored in the store under the <code>name</code> entry and will execute the <code>fn</code> on each change on one of the stored values represented by <code>yassiElementsName</code></li>
+					<li><strong>registerMiddleware(action: string, position: string, fn: (proto, key, val) =&gt; void = null)</strong> - Register a middleware function that will execute on the target action (either before or after it). Good place to execute loggers or monitoring tools.</li>
+					<li><strong>communicate(yassiPropName: string, endpointName: string, functionParams: any[])</strong> - execute an endpoint of name <code>endpointName</code> of the owner of <code>yassiPropName</code> with the given parameters.</li>
+				</ul>
+				<h2 id="middlewares">Middlewares</h2>
+				<p>You can register middleware functions that will be triggered synchronously before/after the yassi decorator apply</p>
+				<ul>
+					<li>You can register the default middleware (i.e. print action to console) by simply call registerMiddleware without callback.
+						Example:
+						<code>`</code>typescript
+					import {registerMiddleware} from &#39;yassi&#39;;</li>
+				</ul>
+				<p>registerMiddleware(&#39;yassit&#39;, &#39;before&#39;);
+					// Instantiation of MyCoolClass as well as updates to its properties will print the properties to the console.
+				const myClass = new MyCoolClass();</p>
+				<pre><code>
+* You may provide a call back <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">to</span> <span class="hljs-title">registerMiddleware</span> <span class="hljs-title">that</span> <span class="hljs-title">will</span> <span class="hljs-title">execute</span> <span class="hljs-title">every</span> <span class="hljs-title">time</span> <span class="hljs-title">the</span> <span class="hljs-title">decorator</span> <span class="hljs-title">is</span> <span class="hljs-title">run</span>
+<span class="hljs-title">Example</span>:
+```<span class="hljs-title">typescript</span>
+<span class="hljs-title">import</span> </span>{registerMiddleware} <span class="hljs-keyword">from</span> <span class="hljs-string">'yassi'</span>;
+
+registerMiddleware(<span class="hljs-string">'yassit'</span>, <span class="hljs-string">'after'</span>,
+    <span class="hljs-function">(<span class="hljs-params">proto: <span class="hljs-built_in">any</span>, key: <span class="hljs-built_in">string</span>, val: <span class="hljs-built_in">any</span></span>) =&gt;</span> <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`-------<span class="hljs-subst">${proto.constructor.name}</span>.<span class="hljs-subst">${key}</span>=<span class="hljs-subst">${val}</span>-------`</span>));
+<span class="hljs-comment">// Instantiation of MyCoolClass will trigger the given callback calls to the console.</span>
+<span class="hljs-keyword">const</span> myClass = <span class="hljs-keyword">new</span> MyCoolClass();</code></pre><p>You can register any amount of middlewares for yassit, select and observe before and/or after it.</p>
+				<h2 id="to-do">To Do</h2>
+				<ol>
+					<li>Introduce yassi.api which will allow a consumer to interact with a property&#39;s owner with an api exposed by the owner (still controlled by the owner)</li>
+					<li>Make <code>@yassi</code> work on different instances of a class. Right now it support only one instance of a class</li>
+					<li>Run benchmark against known stores</li>
+					<li>Add more examples</li>
+					<li>Add UI tools/extensions</li>
+				</ol>
+			</div>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class="globals  ">
+						<a href="globals.html"><em>Globals</em></a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+					<li class=" tsd-kind-enum">
+						<a href="enums/elementstatus.html" class="tsd-kind-icon">Element<wbr>Status</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/storeelement.html" class="tsd-kind-icon">Store<wbr>Element</a>
+					</li>
+					<li class=" tsd-kind-class tsd-is-not-exported">
+						<a href="classes/storewrapper.html" class="tsd-kind-icon">Store<wbr>Wrapper</a>
+					</li>
+					<li class=" tsd-kind-class tsd-is-not-exported">
+						<a href="classes/yassi.html" class="tsd-kind-icon">Yassi</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/yassipropertydescriptor.html" class="tsd-kind-icon">Yassi<wbr>Property<wbr>Descriptor</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-is-not-exported">
+						<a href="globals.html#_facadeowner" class="tsd-kind-icon">_facade<wbr>Owner</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-is-not-exported">
+						<a href="globals.html#afterselectingmiddleware" class="tsd-kind-icon">after<wbr>Selecting<wbr>Middleware</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-is-not-exported">
+						<a href="globals.html#afteryassitmiddleware" class="tsd-kind-icon">after<wbr>Yassit<wbr>Middleware</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-is-not-exported">
+						<a href="globals.html#beforeselectingmiddleware" class="tsd-kind-icon">before<wbr>Selecting<wbr>Middleware</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-is-not-exported">
+						<a href="globals.html#beforeyassitmiddleware" class="tsd-kind-icon">before<wbr>Yassit<wbr>Middleware</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="globals.html#yassi" class="tsd-kind-icon">yassi</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="globals.html#yassistore" class="tsd-kind-icon">yassi<wbr>Store</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-not-exported">
+						<a href="globals.html#default_logger_middleware" class="tsd-kind-icon">DEFAULT_<wbr>LOGGER_<wbr>MIDDLEWARE</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#_communicate" class="tsd-kind-icon">_communicate</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#_facade" class="tsd-kind-icon">_facade</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#_registerendpoint" class="tsd-kind-icon">_register<wbr>Endpoint</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#_registermiddleware" class="tsd-kind-icon">_register<wbr>Middleware</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#_yassit" class="tsd-kind-icon">_yassit</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-not-exported">
+						<a href="globals.html#activateelementifneeded" class="tsd-kind-icon">activate<wbr>Element<wbr>IfNeeded</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#endpoint" class="tsd-kind-icon">endpoint</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-not-exported">
+						<a href="globals.html#executeafterselectmiddleware" class="tsd-kind-icon">execute<wbr>After<wbr>Select<wbr>Middleware</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-not-exported">
+						<a href="globals.html#executeafteryassitmiddleware" class="tsd-kind-icon">execute<wbr>After<wbr>Yassit<wbr>Middleware</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-not-exported">
+						<a href="globals.html#executebeforeselectmiddleware" class="tsd-kind-icon">execute<wbr>Before<wbr>Select<wbr>Middleware</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-not-exported">
+						<a href="globals.html#executebeforeyassitmiddleware" class="tsd-kind-icon">execute<wbr>Before<wbr>Yassit<wbr>Middleware</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#observe" class="tsd-kind-icon">observe</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#overridepropertydefinition" class="tsd-kind-icon">override<wbr>Property<wbr>Definition</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#overrideselectpropertydefinition" class="tsd-kind-icon">override<wbr>Select<wbr>Property<wbr>Definition</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#registermiddleware" class="tsd-kind-icon">register<wbr>Middleware</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#select" class="tsd-kind-icon">select</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-not-exported">
+						<a href="globals.html#setelementvaluehandler" class="tsd-kind-icon">set<wbr>Element<wbr>Value<wbr>Handler</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#yassit" class="tsd-kind-icon">yassit</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-module"><span class="tsd-kind-icon">Module</span></li>
+				<li class="tsd-kind-object-literal"><span class="tsd-kind-icon">Object literal</span></li>
+				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+				<li class="tsd-kind-function tsd-has-type-parameter"><span class="tsd-kind-icon">Function with type parameter</span></li>
+				<li class="tsd-kind-index-signature"><span class="tsd-kind-icon">Index signature</span></li>
+				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>
+				<li class="tsd-kind-enum-member"><span class="tsd-kind-icon">Enumeration member</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-enum"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-enum"><span class="tsd-kind-icon">Method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+				<li class="tsd-kind-interface tsd-has-type-parameter"><span class="tsd-kind-icon">Interface with type parameter</span></li>
+				<li class="tsd-kind-constructor tsd-parent-kind-interface"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-interface"><span class="tsd-kind-icon">Method</span></li>
+				<li class="tsd-kind-index-signature tsd-parent-kind-interface"><span class="tsd-kind-icon">Index signature</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
+				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class"><span class="tsd-kind-icon">Accessor</span></li>
+				<li class="tsd-kind-index-signature tsd-parent-kind-class"><span class="tsd-kind-icon">Index signature</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static property</span></li>
+				<li class="tsd-kind-call-signature tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static method</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="http://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="assets/js/main.js"></script>
+<script>if (location.protocol == 'file:') document.write('<script src="assets/js/search.js"><' + '/script>');</script>
+</body>
+</html>
