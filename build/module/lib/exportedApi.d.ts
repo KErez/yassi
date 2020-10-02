@@ -4,6 +4,7 @@ declare class Yassi {
     select(name: string, targetObj: object, targetProp: string): void;
     registerMiddleware(action: string, position: string, fn?: (proto: any, key: any, val: any) => void): void;
     facade(name: string, yassiElementsName: string[], fn: (yassiElementsValue: any[]) => any): void;
+    endpoint(targetInstance: any, key: string): void;
     communicate(yassiPropName: string, apiFunctionName: string, functionParams: any[]): void;
 }
 export declare const yassi: Yassi;

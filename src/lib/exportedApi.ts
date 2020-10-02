@@ -33,6 +33,11 @@ class Yassi{
     _facade(new YassiPropertyDescriptor(name), elementDescriptors, fn);
   }
 
+  endpoint(targetInstance: any, key: string) {
+    const target = targetInstance.constructor.prototype;
+    _registerEndpoint(target, key);
+  }
+
   communicate(yassiPropName: string, apiFunctionName: string, functionParams: any[]) {
     _communicate(yassiPropName, apiFunctionName, functionParams);
   }
