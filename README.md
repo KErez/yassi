@@ -96,10 +96,10 @@ Now any change to ```MyCoolClass.numProp1``` will reflect reactivly on ```Anothe
 ## Introducing Facades
 One of the key concept of Yassi is to make the store lean and simple. To do so I created Yassi's Facades.
 
-The idea is that I encourage users to use the store (via yassit) only for core data items and any manipulations or combinations of these 
- properties should come in the form of Facades. 
+The idea of facades is to encourage users to use the store (via yassit) only for core data items and any 
+ derived properties should come in the form of Facades. 
  
- In Yassi, properties are stored by the owner thus the owner object may change their values. Facades are stored properties that does not 
+ In Yassi, properties are stored by the owner thus only the owner object may change their values. Facades are stored properties that does not 
   have an owner and therefore cannot change directly (to be precise, they have owner but it is privately owned by Yassi).
  
  Instead Facades listen to changes on one or more stored properties and triggers a function provided by the user on that changes to 
@@ -159,6 +159,19 @@ class AnotherComponent {
 ``` 
 
 Any change to one of the properties in the store `firstName`, `lastName` or `birthDate` will trigger a print of the new version of `userInfo`
+
+The return value from a faced will continue in the facade chain to any listener declared using `select` or `observe`.  
+A user can control whether the facade will continue the chain or not by returning an object contains the `breakFacadeChain` operator and the `payload` operator as follow:  
+
+```typescript
+{
+  breakFacadeChain: boolean,
+  payload: any
+}
+``` 
+If the `breakFacadeChain` is true, the chain will stop and the facade result will not continue to its listeners.  
+If the `breakFacadeChain` is missing (`null` or `undefined`), the entire return value will be sent to the listeners.  
+If the `breakFacadeChain` is false, the chain will continue and the facade will send the value of `payload` to the listeners.  
 
 ## Communicate with property's owner
 As mentioned before, one of the key concept of Yassi is publicly readable/privately writable properties which mean that only the property's owner may alter the property.  

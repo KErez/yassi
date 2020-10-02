@@ -1,5 +1,5 @@
 import { combineLatest, Observable } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { catchError, filter, map } from 'rxjs/operators';
 
 import { ElementStatus, StoreElement, yassiStore } from './store';
 
@@ -212,6 +212,13 @@ export function _facade(yassiDescriptor: YassiPropertyDescriptor, sourceElementD
   combineLatest(yassiElements$)
     .pipe(
       map(fn),
+      filter((result: any) => {
+        return result && !result.breakFacadeChain;
+      }),
+      map((result: any) => {
+        // the existence of breakFacadeChain indicates that we need to return the payload only instead of the entire results
+        return (result.breakFacadeChain != null) ? result.payload: result;
+      }),
       catchError((err) => {
         console.log(err);
         return err;
