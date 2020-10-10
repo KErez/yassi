@@ -43,6 +43,8 @@ The following middleware are available:
   * beforeRetrieve
   * afterRetrieve
 
+**Check the Todo MVC example for Yassi with Angular**: [TodoMVC Yassi](https://github.com/KErez/todomvc-yassi-ng)
+
 ## Installation
 npm install --save yassi
 
@@ -266,7 +268,6 @@ const myClass = new MyCoolClass();
 You can register any amount of middlewares for yassit, select and observe before and/or after it.
 
 ## To Do
-1. Introduce yassi.api which will allow a consumer to interact with a property's owner with an api exposed by the owner (still controlled by the owner)
 1. Make ```@yassi``` work on different instances of a class. Right now it support only one instance of a class
 1. Run benchmark against known stores
 1. Add more examples
