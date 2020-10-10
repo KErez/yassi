@@ -242,7 +242,7 @@ test('observe an array changes', (t) => {
 
   const test1 = new TestSource();
   const test2 = new TestDest();
-  const expectedValues = [undefined, [1], [1,2]];
+  const expectedValues = [undefined, [], [1], [1,2]];
   let v = new BehaviorSubject<any>(null);
   test2.prop12.subscribe((val: any[]) => {
     t.deepEqual(val, expectedValues.shift());
