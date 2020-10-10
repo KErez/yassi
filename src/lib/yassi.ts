@@ -112,6 +112,7 @@ function setElementValueHandler(element: StoreElement, value: any, prototype: an
       // @ts-ignore
       set(target, property, val, receiver) {
         if (!Number.isInteger(parseInt(property as string, 10))) {
+          // Array properties that are not the items such as length
           target[property] = val;
           return true;
         }
@@ -122,6 +123,9 @@ function setElementValueHandler(element: StoreElement, value: any, prototype: an
         return true;
       }
     });
+    // The reference was change so need to fire the event
+    // TODO: Do we need a revokeable Proxy and revoke it here???
+    element.observer.next(element.value);
   } else if (typeof (value) === 'object') {
     element.value = new Proxy(value, {
       // @ts-ignore

@@ -38,7 +38,7 @@ class Yassi{
     _registerEndpoint(target, key);
   }
 
-  communicate(yassiPropName: string, apiFunctionName: string, functionParams: any[]) {
+  communicate(yassiPropName: string, apiFunctionName: string, functionParams: any[] = []) {
     _communicate(yassiPropName, apiFunctionName, functionParams);
   }
 }
