@@ -94,6 +94,7 @@
 						</ul>
 					</li>
 				</ol>
+				<p><strong>Check the Todo MVC example for Yassi with Angular</strong>: <a href="https://github.com/KErez/todomvc-yassi-ng">TodoMVC Yassi</a></p>
 				<h2 id="installation">Installation</h2>
 				<p>npm install --save yassi</p>
 				<h2 id="usage">Usage</h2>
@@ -137,9 +138,9 @@
 				<p>Now any change to <code>MyCoolClass.numProp1</code> will reflect reactivly on <code>AnotherComponent.propFromStore</code> </p>
 				<h2 id="introducing-facades">Introducing Facades</h2>
 				<p>One of the key concept of Yassi is to make the store lean and simple. To do so I created Yassi&#39;s Facades.</p>
-				<p>The idea is that I encourage users to use the store (via yassit) only for core data items and any manipulations or combinations of these
-				properties should come in the form of Facades. </p>
-				<p> In Yassi, properties are stored by the owner thus the owner object may change their values. Facades are stored properties that does not
+				<p>The idea of facades is to encourage users to use the store (via yassit) only for core data items and any
+				derived properties should come in the form of Facades. </p>
+				<p> In Yassi, properties are stored by the owner thus only the owner object may change their values. Facades are stored properties that does not
 				have an owner and therefore cannot change directly (to be precise, they have owner but it is privately owned by Yassi).</p>
 				<p> Instead Facades listen to changes on one or more stored properties and triggers a function provided by the user on that changes to
 				create a new result from these stored properties </p>
@@ -185,6 +186,12 @@ yassi.facade(<span class="hljs-string">'userInfo'</span>, [<span class="hljs-str
   }
 }</code></pre>
 				<p>Any change to one of the properties in the store <code>firstName</code>, <code>lastName</code> or <code>birthDate</code> will trigger a print of the new version of <code>userInfo</code></p>
+				<p>The return value from a facade will continue in the facade chain to any listener declared using <code>select</code> or <code>observe</code>.<br>To prevent facades of firing undesired results, a user may prevent the facade from sending its values to the next handler in the chain by returning an object contains the <code>breakFacadeChain</code> operator and the <code>payload</code> operator as follow:  </p>
+				<pre><code class="language-typescript">{
+  breakFacadeChain: <span class="hljs-built_in">boolean</span>,
+  payload: <span class="hljs-built_in">any</span>
+}</code></pre>
+				<p>If the <code>breakFacadeChain</code> is true, the chain will stop and the facade result will not continue to its listeners.<br>If the <code>breakFacadeChain</code> is missing (<code>null</code> or <code>undefined</code>), the entire return value will be sent to the listeners.<br>If the <code>breakFacadeChain</code> is false, the chain will continue and the facade will send the value of <code>payload</code> to the listeners.  </p>
 				<h2 id="communicate-with-property-s-owner">Communicate with property&#39;s owner</h2>
 				<p>As mentioned before, one of the key concept of Yassi is publicly readable/privately writable properties which mean that only the property&#39;s owner may alter the property.<br>There are cases where one would like to change or request a change from outside (i.e. not from the owner) to a property that owned by other object.<br>In this case Yassi introduce <code>yassi.communicate</code> which allows anyone in the system to request to communicate with the owner in some manner.<br>How this communication will be done and what it will do is still in the control of the property&#39;s owner thus keeping the key concept of privately writable intact.  </p>
 				<h4 id="how-it-is-done">How it is done</h4>
@@ -225,11 +232,28 @@ yassi.facade(<span class="hljs-string">'userInfo'</span>, [<span class="hljs-str
 }</code></pre>
 				<p>The <code>communicate</code> function takes the following arguments:  </p>
 				<ol>
-					<li>The owner&#39;s stored property name in which we like to communicate with (note it could be any other name declared on the owner such as <code>firstName</code>/<code>lastName</code>/<code>birthDate</code>).  </li>
+					<li>The owner&#39;s stored property name in which we like to communicate with (note it could be any other name declared on the owner such as
+					<code>firstName</code>/<code>lastName</code>/<code>birthDate</code>).  </li>
 					<li>The name of the owner&#39;s endpoint that we like to execute meaning the name of the function declared by <code>@endpoint</code>.  </li>
 					<li>The expected arguments the function need as input.  </li>
 				</ol>
-				<p>Note that the control of what is bean done is still at the hand of the owner. </p>
+				<p>Note that the control of what is bean done is still at the hand of the owner.  </p>
+				<h2 id="republishing-properties-to-all-its-listeners">Republishing properties to all its listeners</h2>
+				<p>There might be cases which a property is changed deep in the object hierarchy such as an array of objects where one of the objects&#39; property
+				was changed, since this property is not tracked by Yassi, we will not update the listeners for this change.<br>In such cases you may use <code>republish(property name in store)</code> to publish the property again to all the listerns.<br>Example:</p>
+				<pre><code class="language-typescript"><span class="hljs-comment">// Somewhere in the code we have:</span>
+<span class="hljs-meta">@yassit</span>(<span class="hljs-string">'itemList'</span>)
+itemList = [{active: <span class="hljs-literal">true</span>}];
+
+<span class="hljs-comment">// And a listener somewhere else</span>
+<span class="hljs-meta">@observe</span>(<span class="hljs-string">'itemList'</span>)
+itemListFromOutside: Observable&lt;<span class="hljs-built_in">any</span>&gt;;
+
+<span class="hljs-comment">// and later on the code do:</span>
+itemList[<span class="hljs-number">0</span>].active = <span class="hljs-literal">false</span>;
+
+<span class="hljs-comment">// in order to see this change on `itemListFromOutside` we need to tell yassi to publish the list again as follow:</span>
+yassi.republish(<span class="hljs-string">'itemList'</span>);</code></pre>
 				<h2 id="api">API</h2>
 				<ul>
 					<li><strong>@yassit(name: string)</strong> - prefixed on a class&#39;s property that you like to add it&#39;s values to the store upon instantiation</li>
@@ -265,7 +289,6 @@ registerMiddleware(<span class="hljs-string">'yassit'</span>, <span class="hljs-
 <span class="hljs-keyword">const</span> myClass = <span class="hljs-keyword">new</span> MyCoolClass();</code></pre><p>You can register any amount of middlewares for yassit, select and observe before and/or after it.</p>
 				<h2 id="to-do">To Do</h2>
 				<ol>
-					<li>Introduce yassi.api which will allow a consumer to interact with a property&#39;s owner with an api exposed by the owner (still controlled by the owner)</li>
 					<li>Make <code>@yassi</code> work on different instances of a class. Right now it support only one instance of a class</li>
 					<li>Run benchmark against known stores</li>
 					<li>Add more examples</li>
@@ -333,6 +356,9 @@ registerMiddleware(<span class="hljs-string">'yassit'</span>, <span class="hljs-
 					</li>
 					<li class=" tsd-kind-function">
 						<a href="globals.html#_registermiddleware" class="tsd-kind-icon">_register<wbr>Middleware</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#_republish" class="tsd-kind-icon">_republish</a>
 					</li>
 					<li class=" tsd-kind-function">
 						<a href="globals.html#_yassit" class="tsd-kind-icon">_yassit</a>
