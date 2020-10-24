@@ -162,8 +162,8 @@ class AnotherComponent {
 
 Any change to one of the properties in the store `firstName`, `lastName` or `birthDate` will trigger a print of the new version of `userInfo`
 
-The return value from a faced will continue in the facade chain to any listener declared using `select` or `observe`.  
-A user can control whether the facade will continue the chain or not by returning an object contains the `breakFacadeChain` operator and the `payload` operator as follow:  
+The return value from a facade will continue in the facade chain to any listener declared using `select` or `observe`.  
+To prevent facades of firing undesired results, a user may prevent the facade from sending its values to the next handler in the chain by returning an object contains the `breakFacadeChain` operator and the `payload` operator as follow:  
 
 ```typescript
 {
@@ -226,11 +226,34 @@ function someFunc() {
 }
 ```
 The `communicate` function takes the following arguments:  
-1. The owner's stored property name in which we like to communicate with (note it could be any other name declared on the owner such as `firstName`/`lastName`/`birthDate`).  
+1. The owner's stored property name in which we like to communicate with (note it could be any other name declared on the owner such as
+ `firstName`/`lastName`/`birthDate`).  
 1. The name of the owner's endpoint that we like to execute meaning the name of the function declared by `@endpoint`.  
 1. The expected arguments the function need as input.  
 
-Note that the control of what is bean done is still at the hand of the owner. 
+Note that the control of what is bean done is still at the hand of the owner.  
+
+## Republishing properties to all its listeners
+There might be cases which a property is changed deep in the object hierarchy such as an array of objects where one of the objects' property
+ was changed, since this property is not tracked by Yassi, we will not update the listeners for this change.  
+In such cases you may use `republish(property name in store)` to publish the property again to all the listerns.  
+Example:
+```typescript
+// Somewhere in the code we have:
+@yassit('itemList')
+itemList = [{active: true}];
+
+// And a listener somewhere else
+@observe('itemList')
+itemListFromOutside: Observable<any>;
+
+// and later on the code do:
+itemList[0].active = false;
+
+// in order to see this change on `itemListFromOutside` we need to tell yassi to publish the list again as follow:
+yassi.republish('itemList');
+```
+
 ## API
 * <strong>@yassit(name: string)</strong> - prefixed on a class's property that you like to add it's values to the store upon instantiation
 * <strong>yassi.yassit(name: string, owner?: any, name?: string)</strong> - without annotation the `owner` and `name` are object and it's property in correspond that we like to store

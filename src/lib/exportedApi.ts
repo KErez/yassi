@@ -1,36 +1,35 @@
 import {
   _communicate,
   _facade, _registerEndpoint,
-  _registerMiddleware, _yassit,
+  _registerMiddleware, _republish, _yassit,
   overrideSelectPropertyDefinition,
   YassiPropertyDescriptor
 } from './yassi';
 
 class Yassi{
-  yassit(name: string, owner: object, property: string) {
-    return yassit(name, owner, property);
+  yassit(yassiPropName: string, owner: object, property: string) {
+    return yassit(yassiPropName, owner, property);
   }
 
-  observe(name: string, targetObj: object, targetProp: string) {
-    return overrideSelectPropertyDefinition(targetObj, targetProp, new YassiPropertyDescriptor(name), true);
+  observe(yassiPropName: string, targetObj: object, targetProp: string) {
+    return overrideSelectPropertyDefinition(targetObj, targetProp, new YassiPropertyDescriptor(yassiPropName), true);
   }
 
-  select(name: string, targetObj: object, targetProp: string) {
-    return overrideSelectPropertyDefinition(targetObj, targetProp, new YassiPropertyDescriptor(name), false);
+  select(yassiPropName: string, targetObj: object, targetProp: string) {
+    return overrideSelectPropertyDefinition(targetObj, targetProp, new YassiPropertyDescriptor(yassiPropName), false);
   }
 
   registerMiddleware(action: string, position: string, fn: (proto, key, val) => void = null) {
     return registerMiddleware(action, position, fn);
   }
 
-  facade(name: string, yassiElementsName: string[], fn: (yassiElementsValue: any[]) => any) {
-    if (!name || name.length <= 0 || !RegExp('^[A-Za-z_][A-Za-z_$0-9^.].*').test(name) ||
-      !yassiElementsName || yassiElementsName.length <= 0) {
-      throw new Error('You must provide valid name and yassiElementsName when using facade');
+  facade(yassiPropName: string, yassiElementsName: string[], fn: (yassiElementsValue: any[]) => any) {
+    for(const name of [yassiPropName].concat(yassiElementsName)) {
+      YassiPropertyDescriptor.validateYassiPropertyName(name);
     }
     const elementDescriptors = yassiElementsName.map((n) => new YassiPropertyDescriptor(n));
 
-    _facade(new YassiPropertyDescriptor(name), elementDescriptors, fn);
+    _facade(new YassiPropertyDescriptor(yassiPropName), elementDescriptors, fn);
   }
 
   endpoint(targetInstance: any, key: string) {
@@ -41,34 +40,35 @@ class Yassi{
   communicate(yassiPropName: string, apiFunctionName: string, functionParams: any[] = []) {
     _communicate(yassiPropName, apiFunctionName, functionParams);
   }
+
+  republish(yassiPropName: string) {
+    _republish(yassiPropName);
+  }
 }
 export const yassi = new Yassi();
 
 // Function exported from here are annotation solutions
-export function yassit(name: string, owner?: any, ownerProp?: string) {
-  // TODO: Add validate name functin that will be used everywhere
-  if (!name || name.length <= 0) {
-    throw new Error('You must provide property name when using @yassit()');
-  }
+export function yassit(yassiPropName: string, owner?: any, ownerProp?: string) {
+  YassiPropertyDescriptor.validateYassiPropertyName(yassiPropName);
 
-  return _yassit(name, owner, ownerProp)
+  return _yassit(yassiPropName, owner, ownerProp)
 }
 
-export function select(name) {
-  if (!name || name.length <= 0) {
+export function select(yassiPropName) {
+  if (!yassiPropName || yassiPropName.length <= 0) {
     throw new Error('Missing key. You must provide name parameter when using @select()');
   }
   return function (target: any, key: string) {
-    overrideSelectPropertyDefinition(target, key, new YassiPropertyDescriptor(name))
+    overrideSelectPropertyDefinition(target, key, new YassiPropertyDescriptor(yassiPropName))
   };
 }
 
-export function observe(name) {
-  if (!name || name.length <= 0) {
+export function observe(yassiPropName) {
+  if (!yassiPropName || yassiPropName.length <= 0) {
     throw new Error('Missing key. You must provide name parameter when using @observe()');
   }
   return function (target: any, key: string) {
-    overrideSelectPropertyDefinition(target, key, new YassiPropertyDescriptor(name), true)
+    overrideSelectPropertyDefinition(target, key, new YassiPropertyDescriptor(yassiPropName), true)
   };
 }
 

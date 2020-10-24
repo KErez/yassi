@@ -22,6 +22,12 @@ function DEFAULT_LOGGER_MIDDLEWARE(prototype: any, key: string, value: any) {
 const _facadeOwner = {};
 
 export class YassiPropertyDescriptor {
+  static validateYassiPropertyName(yassiPropName: string) {
+    if (!yassiPropName || yassiPropName.length <= 0 || !RegExp('^[A-Za-z_][A-Za-z_$0-9^.].*').test(yassiPropName) ) {
+      throw new Error('You must provide valid yassiPropertyName');
+    }
+  }
+
   // The actual name of the property in the store
   name: string;
   // TODO:If true, the property will be writable by any holder and not just by the parent/host component
@@ -217,7 +223,7 @@ export function _facade(yassiDescriptor: YassiPropertyDescriptor, sourceElementD
     .pipe(
       map(fn),
       filter((result: any) => {
-        return result && !result.breakFacadeChain;
+        return result != null && !result.breakFacadeChain;
       }),
       map((result: any) => {
         // the existence of breakFacadeChain indicates that we need to return the payload only instead of the entire results
@@ -256,6 +262,15 @@ export function _communicate(yassiPropName: string, apiFunctionName: string, fun
 
   // TODO: Can we catch errors of wrong params executions and do something here - what???
   fn.call(element.owner, ...functionParams);
+}
+
+export function _republish(yassiPropName: string) {
+  const element = yassiStore.get(yassiPropName);
+  if (!element) {
+    console.warn(`Yassi - Cannot call owner of ${yassiPropName}, unknown property`);
+    return;
+  }
+  element.observer.next(element.value);
 }
 
 // @ts-ignore

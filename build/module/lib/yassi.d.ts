@@ -1,4 +1,5 @@
 export declare class YassiPropertyDescriptor {
+    static validateYassiPropertyName(yassiPropName: string): void;
     name: string;
     fullAccess: boolean;
     constructor(name: any, fullAccess?: boolean);
@@ -17,3 +18,4 @@ export declare function _registerMiddleware(action: string, position: string, fn
 export declare function _facade(yassiDescriptor: YassiPropertyDescriptor, sourceElementDescriptors: YassiPropertyDescriptor[], fn: (yassiElementsValue: any[]) => any): void;
 export declare function _registerEndpoint(target: any, key: string): void;
 export declare function _communicate(yassiPropName: string, apiFunctionName: string, functionParams: any[]): void;
+export declare function _republish(yassiPropName: string): void;

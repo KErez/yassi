@@ -5,7 +5,7 @@
 import {serial as test} from 'ava';
 import { BehaviorSubject, Observable } from 'rxjs';
 
-import { yassi, endpoint, observe, registerMiddleware, select, yassit } from './exportedApi';
+import { endpoint, observe, registerMiddleware, select, yassi, yassit } from './exportedApi';
 import { yassiStore } from './store';
 
 // @ts-ignore
@@ -65,6 +65,11 @@ class TestSource {
 
   @yassit('TestSource.apiSource16')
   apiSource16: string = 'Restricted area';
+
+  @yassit('TestSource.markToUpdate17')
+  arraySource17: object[] = [{
+    count: 0,
+  }];
 
   @endpoint()
   change16(inRequest16) {
@@ -489,13 +494,44 @@ test('create a facade on top of stored element', (t) => {
   return v;
 });
 
+test('markToUpdate a property that deeply changed', (t) => {
+  class TestDest {
+    @observe('TestSource.markToUpdate17')
+    markToUpdate$;
+  }
+
+  const test1 = new TestSource();
+  const test2 = new TestDest();
+
+  const expectedVals = [
+    [{count: 0}],
+    [{count: 2}],
+  ];
+
+  let v = new BehaviorSubject<any>(null);
+  test2.markToUpdate$.subscribe((items: object[]) => {
+    const val = expectedVals.shift();
+    t.deepEqual(items, val);
+    if (expectedVals.length === 0) {
+      v.complete();
+    }
+  });
+
+  // This will not trigger change
+  (test1.arraySource17[0] as any).count = 1;
+  (test1.arraySource17[0] as any).count = 2;
+  yassi.republish('TestSource.markToUpdate17');
+
+  return v;
+});
+
 test('Fail to create facade with invalid characters', (t) => {
   try {
     yassi.facade('1facadeDest.fullName', ['TestSource.facadeSource15'], ([userObj]) => {
       return `${userObj.first} ${userObj.last}`
     });
   } catch(e) {
-    t.is(e.message, 'You must provide valid name and yassiElementsName when using facade');
+    t.is(e.message, 'You must provide valid yassiPropertyName');
   }
   try {
     yassi.facade('facadeDest.fullName', ['TestSource.facadeSource15'], ([userObj]) => {
