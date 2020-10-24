@@ -6,6 +6,10 @@ import {
   YassiPropertyDescriptor
 } from './yassi';
 
+/**
+ * Yassi - Yet Another Simple Store Implementation.
+ * This is the main class exported from Yassi library. For further usage please refer to https://github.com/KErez/yassi
+ */
 class Yassi{
   yassit(yassiPropName: string, owner: object, property: string) {
     return yassit(yassiPropName, owner, property);
