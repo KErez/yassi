@@ -47,7 +47,14 @@ class Yassi {
     _registerEndpoint(target, key);
   }
 
-  communicate(yassiPropName: string, apiFunctionName: string, ...functionParams) {
+  // @ts-ignore
+  communicate(yassiPropName: string, apiFunctionName: string, functionParams) {
+    const error = new Error();
+    error.message = 'communicate is deprecated, please use castRequest instead'
+    throw error;
+  }
+
+  castRequest(yassiPropName: string, apiFunctionName: string, ...functionParams) {
     functionParams = functionParams || [];
     _communicate(yassiPropName, apiFunctionName, functionParams);
   }
