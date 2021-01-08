@@ -71,9 +71,29 @@ class TestSource {
     count: 0,
   }];
 
+  @yassit('TestSource.apiSource18')
+  apiSource18: string = 'Restricted area';
+
+  @endpoint()
+  change16Empty() {
+    this.apiSource16 = 'Empty parameters';
+  }
+
   @endpoint()
   change16(inRequest16) {
     this.apiSource16 = inRequest16.replace('requested', 'granted');
+  }
+
+  @endpoint()
+  change16Multiple(inRequest16, param2, param3) {
+    const res = `${inRequest16.replace('requested', 'granted')} -> ${param2} -> ${param3}`;
+    this.apiSource16 = res;
+  }
+
+  @endpoint()
+  change18(inReq18, param2, param3) {
+    const res = `${inReq18.replace('requested', 'granted')} -> ${param2} -> ${param3}`;
+    this.apiSource18 = res;
   }
 
   changeProp6Async() {
@@ -548,10 +568,17 @@ test('Interact with property owner via communicate', (t) => {
     apiDest16: Observable<any>;
   }
 
-  const test1 = new TestSource(); // TODO: To fix the failing test create a new TestSource for this one???
+  const test1 = new TestSource();
   const test2 = new TestDest();
 
-  const expectedVals = ['Restricted area', 'Changed from owner', 'change on api request - granted'];
+  const expectedVals = [
+    'Restricted area',
+    'Empty parameters',
+    'Changed from owner',
+    'change on api request - granted',
+    'Changed from owner',
+    'change on api request - granted -> yassi -> awesome',
+  ];
   const v = new BehaviorSubject<any>(null);
   test2.apiDest16
     .subscribe((propVal: string) => {
@@ -562,9 +589,47 @@ test('Interact with property owner via communicate', (t) => {
         v.complete();
       }
     });
+  yassi.castRequest('TestSource.apiSource16', 'change16Empty');
 
   test1.apiSource16 = 'Changed from owner';
-  yassi.communicate('TestSource.apiSource16', 'change16', ['change on api request - requested']);
+  yassi.castRequest('TestSource.apiSource16', 'change16', 'change on api request - requested');
+
+  test1.apiSource16 = 'Changed from owner';
+  yassi.castRequest('TestSource.apiSource16', 'change16Multiple', 'change on api request - requested', 'yassi', 'awesome');
+
+  return v;
+});
+
+test('Interact with property owner via older communicate version', (t) => {
+  class TestDest {
+    @observe('TestSource.apiSource18')
+    apiDest18: Observable<any>;
+  }
+
+  const test1 = new TestSource();
+  const test2 = new TestDest();
+
+  const expectedVals = [
+    'Restricted area',
+    'Changed from owner',
+  ];
+  const v = new BehaviorSubject<any>(null);
+  test2.apiDest18
+    .subscribe((propVal: string) => {
+      const val = expectedVals.shift();
+      t.is(propVal, val);
+      if (expectedVals.length === 0) {
+        // subscription.unsubscribe();
+        v.complete();
+      }
+    });
+
+  test1.apiSource18 = 'Changed from owner';
+  try {
+    yassi.communicate('TestSource.apiSource18', 'change18', ['change on api request - requested', 'yassi', 'awesome']);
+  } catch(err) {
+    t.is(err.message, 'communicate is deprecated, please use castRequest instead');
+  }
 
   return v;
 });

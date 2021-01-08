@@ -175,16 +175,16 @@ If the `breakFacadeChain` is true, the chain will stop and the facade result wil
 If the `breakFacadeChain` is missing (`null` or `undefined`), the entire return value will be sent to the listeners.  
 If the `breakFacadeChain` is false, the chain will continue and the facade will send the value of `payload` to the listeners.  
 
-## Communicate with property's owner
+## Communicating with property's owner
 As mentioned before, one of the key concept of Yassi is publicly readable/privately writable properties which mean that only the property's owner may alter the property.  
 There are cases where one would like to change or request a change from outside (i.e. not from the owner) to a property that owned by other object.  
-In this case Yassi introduce `yassi.communicate` which allows anyone in the system to request to communicate with the owner in some manner.  
-How this communication will be done and what it will do is still in the control of the property's owner thus keeping the key concept of privately writable intact.  
+In this case Yassi introduce `yassi.castRequest` (replacing the deprecated `yassi.communicate`) which allows anyone in the system to cast a request to the owner in some manner.  
+How this request will be handled and what it will do is still in the control of the property's owner thus keeping the key concept of privately writable intact.  
 
 #### How it is done
 Declare endpoint function in the owner class/object with `@endpoint`.  
 Note that the `@endpoint` functions must be declared after `@yassit` for the store to recognize it.  
-Then call for `communicate()` with the owner's property name (this is how Yassi recognize the owner you want to communicate with), the endpoint name and array of arguments that will passed to endpoint.
+Then call for `castRequest()` with the owner's property name (this is how Yassi recognize the owner you want to cast request to), the endpoint name and zero or more arguments that will passed to endpoint.
 
 Example:
 ```typescript
@@ -222,14 +222,14 @@ import {yassi} from yassi;
 
 function someFunc() {
   // Do many things or not
-  yassi.communicate('userType', 'changeUserType', ['user', currentUser]);  
+  yassi.castRequest('userType', 'changeUserType', 'user', currentUser);  
 }
 ```
-The `communicate` function takes the following arguments:  
-1. The owner's stored property name in which we like to communicate with (note it could be any other name declared on the owner such as
+The `castRequest` function takes the following arguments:  
+1. The owner's stored property name in which we like to cast request to (note it could be any other name declared on the owner such as
  `firstName`/`lastName`/`birthDate`).  
 1. The name of the owner's endpoint that we like to execute meaning the name of the function declared by `@endpoint`.  
-1. The expected arguments the function need as input.  
+1. Zero or more arguments the endpoint function expect as input.  
 
 Note that the control of what is bean done is still at the hand of the owner.  
 
@@ -263,7 +263,9 @@ yassi.republish('itemList');
 * <strong>yassi.observe(name: string, targetObj: object, targetProp: string)</strong> - without annotation, the targetObj and targetProp are object and it's property in correspond that we like to apply the store data on reactively.  
 * <strong>facade(name: string, yassiElementsName: string[], fn: (yassiElementsValue: any[]) => any)</strong> - The facade results will be stored in the store under the `name` entry and will execute the `fn` on each change on one of the stored values represented by `yassiElementsName`
 * <strong>registerMiddleware(action: string, position: string, fn: (proto, key, val) => void = null)</strong> - Register a middleware function that will execute on the target action (either before or after it). Good place to execute loggers or monitoring tools.
-* <strong>communicate(yassiPropName: string, endpointName: string, functionParams: any[])</strong> - execute an endpoint of name `endpointName` of the owner of `yassiPropName` with the given parameters.
+* <strong>castRequest(yassiPropName: string, endpointName: string, ...functionParams)</strong> - execute an endpoint of name `endpointName` of the owner of `yassiPropName` with the given parameters.
+* <del>communicate(yassiPropName: string, endpointName: string, functionParams: any[]) - execute an endpoint of name `endpointName` of the owner of `yassiPropName` with the given parameters.</del>  
+  Note this method is deprecated and was replaced with the `castRequest` which use rest parameters instead of array for the endpoint
  
 ## Middlewares
 You can register middleware functions that will be triggered synchronously before/after the yassi decorator apply
