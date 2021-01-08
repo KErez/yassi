@@ -15,7 +15,7 @@ declare class Yassi {
     registerMiddleware(action: string, position: string, fn?: (proto: any, key: any, val: any) => void): void;
     facade(yassiPropName: string, yassiElementsName: string[], fn: (yassiElementsValue: any[]) => any): void;
     endpoint(targetInstance: any, key: string): void;
-    communicate(yassiPropName: string, apiFunctionName: string, functionParams?: any[]): void;
+    communicate(yassiPropName: string, apiFunctionName: string, ...functionParams: any[]): void;
     republish(yassiPropName: string): void;
 }
 export declare const yassi: Yassi;
