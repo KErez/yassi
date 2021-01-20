@@ -74,6 +74,15 @@ class TestSource {
   @yassit('TestSource.apiSource18')
   apiSource18: string = 'Restricted area';
 
+  @yassit('TestSource.arraySource19')
+  arrayProp19: any[] = [1, 2, 3];
+
+  @yassit('TestSource.objectSource20')
+  objectProp20: any = {
+    a: 1,
+    b: 2,
+  }
+
   @endpoint()
   change16Empty() {
     this.apiSource16 = 'Empty parameters';
@@ -631,6 +640,56 @@ test('Interact with property owner via older communicate version', (t) => {
     t.is(err.message, 'communicate is deprecated, please use castRequest instead');
   }
 
+  return v;
+});
+
+test('Fail to change array item from listener', (t) => {
+  class TestDest {
+    @observe('TestSource.arraySource19') prop19;
+  }
+
+  const test1 = new TestSource();
+  const test2 = new TestDest();
+  const expectedValues = [[1, 2, 3], [1, 2, 3, 'a']];
+  let v = new BehaviorSubject<any>(null);
+  test2.prop19.subscribe((val: any[]) => {
+    t.deepEqual(val, expectedValues.shift());
+    if (val.length === 4) {
+      // Now lets try to push something from the listener
+      val.push('not affecting yassi');
+    }
+    if (expectedValues.length === 0) {
+      v.complete();
+    }
+  });
+  test1.arrayProp19.push('a');
+  return v;
+});
+
+test('Fail to change object property from listener', (t) => {
+  class TestDest {
+    @observe('TestSource.objectSource20') prop20;
+  }
+
+  const test1 = new TestSource();
+  const test2 = new TestDest();
+  const expectedValues: any[] = [{a: 1, b:2}, {a: 2, b: 2}, {a: 2, b: 2, c: 3}];
+  let v = new BehaviorSubject<any>(null);
+  test2.prop20.subscribe((val: any) => {
+    t.deepEqual(val, expectedValues.shift());
+    if (val.a === 2) {
+      // Now let's try to change the object from here, the listener
+      val.a = 4;
+    }
+    if (val.c === 3) {
+      val.d = 5;
+    }
+    if (expectedValues.length === 0) {
+      v.complete();
+    }
+  });
+  test1.objectProp20.a = 2;
+  test1.objectProp20.c = 3;
   return v;
 });
 

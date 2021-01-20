@@ -124,7 +124,7 @@ function setElementValueHandler(element: StoreElement, value: any, prototype: an
         }
         executeBeforeYassitMiddleware(prototype, key, element.value);
         target[property] = val;
-        element.observer.next(element.value);
+        element.observer.next([...element.value]);
         executeAfterYassitMiddleware(prototype, key, element.value);
         return true;
       }
@@ -143,7 +143,7 @@ function setElementValueHandler(element: StoreElement, value: any, prototype: an
         if (!target[property] || target.hasOwnProperty(property)) {
           executeBeforeYassitMiddleware(prototype, key, value);
           target[property] = val;
-          element.observer.next(element.value);
+          element.observer.next({...element.value});
           executeAfterYassitMiddleware(prototype, key, element.value);
         } else {
           target[property] = val;

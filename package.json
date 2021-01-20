@@ -66,7 +66,7 @@
     "rxjs": "^6.4.0"
   },
   "devDependencies": {
-    "ava": "^1.4.1",
+    "ava": "^3.15.0",
     "codecov": "^3.1.0",
     "cz-conventional-changelog": "^2.1.0",
     "gh-pages": "^2.0.1",
@@ -87,7 +87,7 @@
     "files": [
       "build/main/**/*.spec.js"
     ],
-    "sources": [
+    "ignoredByWatcher": [
       "build/main/**/*.js"
     ]
   },
