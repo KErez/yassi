@@ -12,6 +12,7 @@ declare class Yassi {
     yassit(yassiPropName: string, owner: object, property: string): (target: any, key: string) => void;
     observe(yassiPropName: string, targetObj: object, targetProp: string): void;
     select(yassiPropName: string, targetObj: object, targetProp: string): void;
+    get(yassiPropName: string): any;
     registerMiddleware(action: string, position: string, fn?: (proto: any, key: any, val: any) => void): void;
     facade(yassiPropName: string, yassiElementsName: string[], fn: (yassiElementsValue: any[]) => any): void;
     endpoint(targetInstance: any, key: string): void;

@@ -14,6 +14,7 @@ export declare function _yassit(name: string, owner?: any, ownerProp?: string): 
  */
 export declare function overridePropertyDefinition(prototype: any, key: string, yassiDescriptor: YassiPropertyDescriptor): void;
 export declare function overrideSelectPropertyDefinition(prototype: any, key: string, yassiDescriptor: YassiPropertyDescriptor, obsrv?: boolean): void;
+export declare function _get(yassiDescriptor: YassiPropertyDescriptor): any;
 export declare function _registerMiddleware(action: string, position: string, fn?: (proto: any, key: any, val: any) => void): void;
 export declare function _facade(yassiDescriptor: YassiPropertyDescriptor, sourceElementDescriptors: YassiPropertyDescriptor[], fn: (yassiElementsValue: any[]) => any): void;
 export declare function _registerEndpoint(target: any, key: string): void;

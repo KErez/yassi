@@ -83,6 +83,11 @@ class TestSource {
     b: 2,
   }
 
+  @yassit('TestSource.objectSource21')
+  objectProp21: any = {
+    getIt: true,
+  }
+
   @endpoint()
   change16Empty() {
     this.apiSource16 = 'Empty parameters';
@@ -691,6 +696,15 @@ test('Fail to change object property from listener', (t) => {
   test1.objectProp20.a = 2;
   test1.objectProp20.c = 3;
   return v;
+});
+
+test('get a yassi property on demand without attaching to a local object', (t) => {
+  const test1 = new TestSource();
+
+  const sourceRef = yassi.get('TestSource.objectSource21');
+  t.deepEqual(sourceRef, test1.objectProp21);
+  sourceRef.getIt = false;
+  t.is(test1.objectProp21.getIt, true);
 });
 
 test('registerMiddleware for before yassit', (t) => {

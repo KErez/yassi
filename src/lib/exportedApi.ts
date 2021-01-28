@@ -1,6 +1,6 @@
 import {
   _communicate,
-  _facade, _registerEndpoint,
+  _facade, _get, _registerEndpoint,
   _registerMiddleware, _republish, _yassit,
   overrideSelectPropertyDefinition,
   YassiPropertyDescriptor
@@ -27,6 +27,10 @@ class Yassi {
 
   select(yassiPropName: string, targetObj: object, targetProp: string) {
     return overrideSelectPropertyDefinition(targetObj, targetProp, new YassiPropertyDescriptor(yassiPropName), false);
+  }
+
+  get(yassiPropName: string) {
+    return _get(new YassiPropertyDescriptor(yassiPropName));
   }
 
   registerMiddleware(action: string, position: string, fn: (proto, key, val) => void = null) {

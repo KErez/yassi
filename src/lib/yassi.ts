@@ -124,7 +124,7 @@ function setElementValueHandler(element: StoreElement, value: any, prototype: an
         }
         executeBeforeYassitMiddleware(prototype, key, element.value);
         target[property] = val;
-        element.observer.next([...element.value]);
+        element.observer.next(getSafeValue(element.value));
         executeAfterYassitMiddleware(prototype, key, element.value);
         return true;
       }
@@ -143,7 +143,7 @@ function setElementValueHandler(element: StoreElement, value: any, prototype: an
         if (!target[property] || target.hasOwnProperty(property)) {
           executeBeforeYassitMiddleware(prototype, key, value);
           target[property] = val;
-          element.observer.next({...element.value});
+          element.observer.next(getSafeValue(element.value));
           executeAfterYassitMiddleware(prototype, key, element.value);
         } else {
           target[property] = val;
@@ -154,6 +154,21 @@ function setElementValueHandler(element: StoreElement, value: any, prototype: an
   } else {
     element.value = value;
   }
+}
+
+function getSafeValue(value: any) {
+  if (value) {
+    if (typeof(value) === 'object') {
+      // TODO: Change this implementation with exceptional Proxy
+      if (Array.isArray(value)) {
+        return [...value];
+      } else {
+        return {...value};
+      }
+    }
+  }
+
+  return value;
 }
 
 function activateElementIfNeeded(yassiDescriptor: YassiPropertyDescriptor) {
@@ -182,6 +197,11 @@ export function overrideSelectPropertyDefinition(prototype: any,
     }
     // We don't create setter since we want selected properties to behave like readonly properties
   });
+}
+
+export function _get(yassiDescriptor: YassiPropertyDescriptor) {
+  let element = yassiStore.get(yassiDescriptor.name);
+  return element ? getSafeValue(element.value) : undefined;
 }
 
 export function _registerMiddleware(action: string, position: string, fn: (proto, key, val) => void = null) {
