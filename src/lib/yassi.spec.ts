@@ -88,6 +88,9 @@ class TestSource {
     getIt: true,
   }
 
+  @yassit('TestSource.srcBoolLikeProp22')
+  boolLikeProp22: any;
+
   @endpoint()
   change16Empty() {
     this.apiSource16 = 'Empty parameters';
@@ -705,6 +708,27 @@ test('get a yassi property on demand without attaching to a local object', (t) =
   t.deepEqual(sourceRef, test1.objectProp21);
   sourceRef.getIt = false;
   t.is(test1.objectProp21.getIt, true);
+});
+
+test('observe false like values changes', (t) => {
+  class TestDest {
+    @observe('TestSource.srcBoolLikeProp22') prop22;
+  }
+
+  const test1 = new TestSource();
+  const test2 = new TestDest();
+  const expectedValues = [undefined, true, false, ''];
+  let v = new BehaviorSubject<any>(null);
+  test2.prop22.subscribe((val: boolean) => {
+    t.is(val, expectedValues.shift());
+    if (expectedValues.length === 0) {
+      v.complete();
+    }
+  });
+  test1.boolLikeProp22 = true;
+  test1.boolLikeProp22 = false;
+  test1.boolLikeProp22 = '';
+  return v;
 });
 
 test('registerMiddleware for before yassit', (t) => {

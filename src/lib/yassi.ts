@@ -84,7 +84,7 @@ export function overridePropertyDefinition(prototype: any,
           let elem = yassiStore.get(yassiDescriptor.name);
           setElementValueHandler(elem, value, prototype, key);
           yassiStore.set(yassiDescriptor.name, elem);
-          if (elem.value && !Array.isArray(elem.value)){
+          if (!Array.isArray(elem.value)){
             elem.observer.next(elem.value);
           }
           executeAfterYassitMiddleware(prototype, key, elem.value);
