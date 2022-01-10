@@ -579,7 +579,7 @@ test('Fail to create facade with invalid characters', (t) => {
   }
 });
 
-test('Interact with property owner via communicate', (t) => {
+test('Interact with property owner via castRequest', (t) => {
   class TestDest {
     @observe('TestSource.apiSource16')
     apiDest16: Observable<any>;
