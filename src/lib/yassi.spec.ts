@@ -117,7 +117,7 @@ class TestSource {
     let promise = new Promise((resolve) => {
       setTimeout(() => {
         this.asyncProp6 = 345;
-        resolve();
+        resolve(null);
       }, 200);
     });
     return promise;
