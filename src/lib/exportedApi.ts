@@ -1,9 +1,13 @@
 import {
   _communicate,
-  _facade, _get, _registerEndpoint,
-  _registerMiddleware, _republish, _yassit,
+  _facade,
+  _get,
+  _registerEndpoint,
+  _registerMiddleware,
+  _republish,
+  _yassit,
   overrideSelectPropertyDefinition,
-  YassiPropertyDescriptor
+  YassiPropertyDescriptor,
 } from './yassi';
 
 /**
@@ -38,7 +42,7 @@ class Yassi {
   }
 
   facade(yassiPropName: string, yassiElementsName: string[], fn: (yassiElementsValue: any[]) => any) {
-    for(const name of [yassiPropName].concat(yassiElementsName)) {
+    for (const name of [yassiPropName].concat(yassiElementsName)) {
       YassiPropertyDescriptor.validateYassiPropertyName(name);
     }
     const elementDescriptors = yassiElementsName.map((n) => new YassiPropertyDescriptor(n));
@@ -54,7 +58,7 @@ class Yassi {
   // @ts-ignore
   communicate(yassiPropName: string, apiFunctionName: string, functionParams) {
     const error = new Error();
-    error.message = 'communicate is deprecated, please use castRequest instead'
+    error.message = 'communicate is deprecated, please use castRequest instead';
     throw error;
   }
 
@@ -81,7 +85,7 @@ export const yassi = new Yassi();
 export function yassit(yassiPropName: string, owner?: any, ownerProp?: string) {
   YassiPropertyDescriptor.validateYassiPropertyName(yassiPropName);
 
-  return _yassit(yassiPropName, owner, ownerProp)
+  return _yassit(yassiPropName, owner, ownerProp);
 }
 
 /**
@@ -93,8 +97,8 @@ export function select(yassiPropName) {
   if (!yassiPropName || yassiPropName.length <= 0) {
     throw new Error('Missing key. You must provide name parameter when using @select()');
   }
-  return function (target: any, key: string) {
-    overrideSelectPropertyDefinition(target, key, new YassiPropertyDescriptor(yassiPropName))
+  return function(target: any, key: string) {
+    overrideSelectPropertyDefinition(target, key, new YassiPropertyDescriptor(yassiPropName));
   };
 }
 
@@ -108,8 +112,8 @@ export function observe(yassiPropName) {
   if (!yassiPropName || yassiPropName.length <= 0) {
     throw new Error('Missing key. You must provide name parameter when using @observe()');
   }
-  return function (target: any, key: string) {
-    overrideSelectPropertyDefinition(target, key, new YassiPropertyDescriptor(yassiPropName), true)
+  return function(target: any, key: string) {
+    overrideSelectPropertyDefinition(target, key, new YassiPropertyDescriptor(yassiPropName), true);
   };
 }
 
@@ -117,9 +121,9 @@ export function observe(yassiPropName) {
  * Register the annotated function as an endpoint for the `communicate` operator.
  */
 export function endpoint() {
-  return function (target: any, key: string) {
+  return function(target: any, key: string) {
     _registerEndpoint(target, key);
-  }
+  };
 }
 
 /**

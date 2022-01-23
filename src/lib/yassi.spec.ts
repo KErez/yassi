@@ -1,8 +1,7 @@
 // tslint:disable:no-expression-statement
 // tslint:exampleDecorator
 
-
-import {serial as test} from 'ava';
+import { serial as test } from 'ava';
 import { BehaviorSubject, Observable } from 'rxjs';
 
 import { endpoint, observe, registerMiddleware, select, yassi, yassit } from './exportedApi';
@@ -19,29 +18,29 @@ class TestSource {
   numProp1: number;
 
   @yassit('TestSource.srcNumProp2')
-  numProp2: number = 2;
+  numProp2 = 2;
 
-  numProp3: number = 3;
+  numProp3 = 3;
 
   @yassit('TestSource.srcStringProp4')
-  strProp4: string = 'Not Again';
+  strProp4 = 'Not Again';
 
   @yassit('TestSource.srcObjProp5')
   objProp5: any = {
-    msg: 'this is a property in object'
+    msg: 'this is a property in object',
   };
 
   @yassit('TestSource.srcAsyncNumProp6')
-  asyncProp6: number = 42;
+  asyncProp6 = 42;
 
   @yassit('TestSource.srcAsyncNumProp7')
-  asyncProp7: number = 314;
+  asyncProp7 = 314;
 
   @yassit('TestSource.srcAsyncObjProp8')
   asyncProp8: any;
 
   @yassit('TestSource.srcAsyncObjProp9')
-  asyncProp9: any = {prop1: 1, prop2: 2};
+  asyncProp9: any = { prop1: 1, prop2: 2 };
 
   @yassit('TestSource.srcAsyncObjProp10')
   asyncProp10: any;
@@ -60,11 +59,11 @@ class TestSource {
   facadeProp15: any = {
     first: 'Kfir',
     last: 'Erez',
-    birthYear: 1975
+    birthYear: 1975,
   };
 
   @yassit('TestSource.apiSource16')
-  apiSource16: string = 'Restricted area';
+  apiSource16 = 'Restricted area';
 
   @yassit('TestSource.markToUpdate17')
   arraySource17: object[] = [{
@@ -72,7 +71,7 @@ class TestSource {
   }];
 
   @yassit('TestSource.apiSource18')
-  apiSource18: string = 'Restricted area';
+  apiSource18 = 'Restricted area';
 
   @yassit('TestSource.arraySource19')
   arrayProp19: any[] = [1, 2, 3];
@@ -81,12 +80,12 @@ class TestSource {
   objectProp20: any = {
     a: 1,
     b: 2,
-  }
+  };
 
   @yassit('TestSource.objectSource21')
   objectProp21: any = {
     getIt: true,
-  }
+  };
 
   @yassit('TestSource.srcBoolLikeProp22')
   boolLikeProp22: any;
@@ -114,7 +113,7 @@ class TestSource {
   }
 
   changeProp6Async() {
-    let promise = new Promise((resolve) => {
+    const promise = new Promise((resolve) => {
       setTimeout(() => {
         this.asyncProp6 = 345;
         resolve(null);
@@ -142,7 +141,7 @@ test("object A's property is selected by object B", (t) => {
     @select('TestSource.srcNumProp2') extProp2;
     @select('TestSource.srcStringProp4') extProp3;
 
-    myProp1: number = 10;
+    myProp1 = 10;
   }
 
   const test1 = new TestSource();
@@ -214,10 +213,10 @@ test("yassit A's property of type object is by reference", (t) => {
   test1.objProp5.anotherProp = 'Another new obj';
   t.is(test2.prop5.anotherProp, 'Another new obj');
   test2.prop5.propFromSelected = 'Prop from selected';
-  t.is(test1.objProp5.propFromSelected, 'Prop from selected')
+  t.is(test1.objProp5.propFromSelected, 'Prop from selected');
 });
 
-test("change selected property of type object throw error", (t) => {
+test('change selected property of type object throw error', (t) => {
   class TestDest {
     @select('TestSource.srcObjProp5') prop5;
   }
@@ -229,8 +228,8 @@ test("change selected property of type object throw error", (t) => {
   t.is(test2.prop5.anotherProp, 'Another new obj');
   try {
     test2.prop5 = {
-      msg: 'message in another object. Throw exception'
-    }
+      msg: 'message in another object. Throw exception',
+    };
   } catch (e) {
     t.is(e.message, 'Cannot set property prop5 of #<TestDest> which has only a getter');
   }
@@ -281,8 +280,8 @@ test('observe an array changes', (t) => {
 
   const test1 = new TestSource();
   const test2 = new TestDest();
-  const expectedValues = [undefined, [], [1], [1,2]];
-  let v = new BehaviorSubject<any>(null);
+  const expectedValues = [undefined, [], [1], [1, 2]];
+  const v = new BehaviorSubject<any>(null);
   test2.prop12.subscribe((val: any[]) => {
     t.deepEqual(val, expectedValues.shift());
     if (expectedValues.length === 0) {
@@ -303,8 +302,8 @@ test('observe object were its property changes', (t) => {
   const test1 = new TestSource();
   const test2 = new TestDest();
 
-  const expectedVals = [undefined, {inner1: 5}, {inner1: 8}];
-  let v = new BehaviorSubject<any>(null);
+  const expectedVals = [undefined, { inner1: 5 }, { inner1: 8 }];
+  const v = new BehaviorSubject<any>(null);
   test2.prop8.subscribe((val) => {
     t.deepEqual(val, expectedVals.shift());
     if (expectedVals.length === 0) {
@@ -312,12 +311,11 @@ test('observe object were its property changes', (t) => {
     }
   });
   test1.asyncProp8 = {
-    inner1: 5
+    inner1: 5,
   };
   test1.asyncProp8.inner1 = 8;
   return v;
 });
-
 
 test('Change an initialized observed object', (t) => {
   class TestDest {
@@ -327,12 +325,8 @@ test('Change an initialized observed object', (t) => {
   const test1 = new TestSource();
   const test2 = new TestDest();
 
-  const expectedVals = [
-    {prop1: 1, prop2: 2},
-    {prop3: 'other'},
-    {prop4: 42},
-  ];
-  let v = new BehaviorSubject<any>(null);
+  const expectedVals = [{ prop1: 1, prop2: 2 }, { prop3: 'other' }, { prop4: 42 }];
+  const v = new BehaviorSubject<any>(null);
   setTimeout(() => {
     test2.prop9.subscribe((val) => {
       t.deepEqual(val, expectedVals.shift());
@@ -341,12 +335,12 @@ test('Change an initialized observed object', (t) => {
       }
     });
     test1.asyncProp9 = {
-      prop3: 'other'
+      prop3: 'other',
     };
     test1.asyncProp9 = {
-      prop4: 42
+      prop4: 42,
     };
-  },10);
+  }, 10);
   return v;
 });
 
@@ -358,13 +352,8 @@ test('Change an uninitialized observed object', (t) => {
   const test1 = new TestSource();
   const test2 = new TestDest();
 
-  const expectedVals = [
-    undefined,
-    {prop1: 'bla'},
-    {prop3: 'other'},
-    {prop4: 42},
-  ];
-  let v = new BehaviorSubject<any>(null);
+  const expectedVals = [undefined, { prop1: 'bla' }, { prop3: 'other' }, { prop4: 42 }];
+  const v = new BehaviorSubject<any>(null);
   test2.prop10.subscribe((val) => {
     t.deepEqual(val, expectedVals.shift());
     if (expectedVals.length === 0) {
@@ -372,13 +361,13 @@ test('Change an uninitialized observed object', (t) => {
     }
   });
   test1.asyncProp10 = {
-    prop1: 'bla'
+    prop1: 'bla',
   };
   test1.asyncProp10 = {
-    prop3: 'other'
+    prop3: 'other',
   };
   test1.asyncProp10 = {
-    prop4: 42
+    prop4: 42,
   };
   return v;
 });
@@ -393,12 +382,12 @@ test("Change object's properties and observe them", (t) => {
 
   const expectedVals = [
     undefined,
-    {prop1: 'bla'},
-    {prop1: 'changed'},
-    {prop1: 'changed', prop3: 'other'},
-    {prop1: 'changed', prop3: 'other', prop4: 42},
+    { prop1: 'bla' },
+    { prop1: 'changed' },
+    { prop1: 'changed', prop3: 'other' },
+    { prop1: 'changed', prop3: 'other', prop4: 42 },
   ];
-  let v = new BehaviorSubject<any>(null);
+  const v = new BehaviorSubject<any>(null);
   setTimeout(() => {
     test2.prop11.subscribe((val) => {
       t.deepEqual(val, expectedVals.shift());
@@ -407,12 +396,12 @@ test("Change object's properties and observe them", (t) => {
       }
     });
     test1.asyncProp11 = {
-      prop1: 'bla'
+      prop1: 'bla',
     };
     test1.asyncProp11.prop1 = 'changed';
     test1.asyncProp11.prop3 = 'other';
     test1.asyncProp11.prop4 = 42;
-  },10);
+  }, 10);
 
   return v;
 });
@@ -430,12 +419,12 @@ test('No annotations yassit and observe', (t) => {
 
   const expectedVals = [
     undefined,
-    {prop1: 'bla'},
-    {prop1: 'changed'},
-    {prop1: 'changed', prop3: 'other'},
-    {prop1: 'changed', prop3: 'other', prop4: 42},
+    { prop1: 'bla' },
+    { prop1: 'changed' },
+    { prop1: 'changed', prop3: 'other' },
+    { prop1: 'changed', prop3: 'other', prop4: 42 },
   ];
-  let v = new BehaviorSubject<any>(null);
+  const v = new BehaviorSubject<any>(null);
   setTimeout(() => {
     test2.prop13.subscribe((val) => {
       t.deepEqual(val, expectedVals.shift());
@@ -444,12 +433,12 @@ test('No annotations yassit and observe', (t) => {
       }
     });
     test1.noAnnotationProp13 = {
-      prop1: 'bla'
+      prop1: 'bla',
     };
     test1.noAnnotationProp13.prop1 = 'changed';
     test1.noAnnotationProp13.prop3 = 'other';
     test1.noAnnotationProp13.prop4 = 42;
-  },10);
+  }, 10);
 
   return v;
 });
@@ -467,12 +456,12 @@ test('yassit on an old js object without class and annotations', (t) => {
 
   const expectedVals = [
     undefined,
-    {prop1: 'bla'},
-    {prop1: 'changed'},
-    {prop1: 'changed', prop3: 'other'},
-    {prop1: 'changed', prop3: 'other', prop4: 42},
+    { prop1: 'bla' },
+    { prop1: 'changed' },
+    { prop1: 'changed', prop3: 'other' },
+    { prop1: 'changed', prop3: 'other', prop4: 42 },
   ];
-  let v = new BehaviorSubject<any>(null);
+  const v = new BehaviorSubject<any>(null);
   setTimeout(() => {
     test2.prop14.subscribe((val) => {
       t.deepEqual(val, expectedVals.shift());
@@ -481,12 +470,12 @@ test('yassit on an old js object without class and annotations', (t) => {
       }
     });
     test1.oldJSObjectProp14 = {
-      prop1: 'bla'
+      prop1: 'bla',
     };
     test1.oldJSObjectProp14.prop1 = 'changed';
     test1.oldJSObjectProp14.prop3 = 'other';
     test1.oldJSObjectProp14.prop4 = 42;
-  },10);
+  }, 10);
 
   return v;
 });
@@ -496,7 +485,7 @@ test('create a facade on top of stored element', (t) => {
     if (!userObj) {
       return null;
     }
-    return `${userObj.first} ${userObj.last}`
+    return `${userObj.first} ${userObj.last}`;
   });
 
   t.is(yassiStore.has('TestSource.facadeSource15'), true);
@@ -510,11 +499,9 @@ test('create a facade on top of stored element', (t) => {
   // @ts-ignore
   const test1 = new TestSource();
   const test2 = new TestDest();
-  const expectedVals = [
-    'Kfir Erez',
-  ];
+  const expectedVals = ['Kfir Erez'];
 
-  let v = new BehaviorSubject<any>(null);
+  const v = new BehaviorSubject<any>(null);
   setTimeout(() => {
     test2.fullNameProp15.subscribe((fullName: string) => {
       const val = expectedVals.shift();
@@ -523,7 +510,7 @@ test('create a facade on top of stored element', (t) => {
         v.complete();
       }
     });
-  },0);
+  }, 0);
 
   return v;
 });
@@ -537,12 +524,9 @@ test('markToUpdate a property that deeply changed', (t) => {
   const test1 = new TestSource();
   const test2 = new TestDest();
 
-  const expectedVals = [
-    [{count: 0}],
-    [{count: 2}],
-  ];
+  const expectedVals = [[{ count: 0 }], [{ count: 2 }]];
 
-  let v = new BehaviorSubject<any>(null);
+  const v = new BehaviorSubject<any>(null);
   test2.markToUpdate$.subscribe((items: object[]) => {
     const val = expectedVals.shift();
     t.deepEqual(items, val);
@@ -562,16 +546,16 @@ test('markToUpdate a property that deeply changed', (t) => {
 test('Fail to create facade with invalid characters', (t) => {
   try {
     yassi.facade('1facadeDest.fullName', ['TestSource.facadeSource15'], ([userObj]) => {
-      return `${userObj.first} ${userObj.last}`
+      return `${userObj.first} ${userObj.last}`;
     });
-  } catch(e) {
+  } catch (e) {
     t.is(e.message, 'You must provide valid yassiPropertyName');
   }
   try {
     yassi.facade('facadeDest.fullName', ['TestSource.facadeSource15'], ([userObj]) => {
-      return `${userObj.first} ${userObj.last}`
+      return `${userObj.first} ${userObj.last}`;
     });
-  } catch(e) {
+  } catch (e) {
     t.is(e.message, 'You must provide valid name and yassiElementsName when using facade');
   }
 });
@@ -594,15 +578,14 @@ test('Interact with property owner via castRequest', (t) => {
     'change on api request - granted -> yassi -> awesome',
   ];
   const v = new BehaviorSubject<any>(null);
-  test2.apiDest16
-    .subscribe((propVal: string) => {
-      const val = expectedVals.shift();
-      t.is(propVal, val);
-      if (expectedVals.length === 0) {
-        // subscription.unsubscribe();
-        v.complete();
-      }
-    });
+  test2.apiDest16.subscribe((propVal: string) => {
+    const val = expectedVals.shift();
+    t.is(propVal, val);
+    if (expectedVals.length === 0) {
+      // subscription.unsubscribe();
+      v.complete();
+    }
+  });
   yassi.castRequest('TestSource.apiSource16', 'change16Empty');
 
   test1.apiSource16 = 'Changed from owner';
@@ -623,25 +606,21 @@ test('Interact with property owner via older communicate version', (t) => {
   const test1 = new TestSource();
   const test2 = new TestDest();
 
-  const expectedVals = [
-    'Restricted area',
-    'Changed from owner',
-  ];
+  const expectedVals = ['Restricted area', 'Changed from owner'];
   const v = new BehaviorSubject<any>(null);
-  test2.apiDest18
-    .subscribe((propVal: string) => {
-      const val = expectedVals.shift();
-      t.is(propVal, val);
-      if (expectedVals.length === 0) {
-        // subscription.unsubscribe();
-        v.complete();
-      }
-    });
+  test2.apiDest18.subscribe((propVal: string) => {
+    const val = expectedVals.shift();
+    t.is(propVal, val);
+    if (expectedVals.length === 0) {
+      // subscription.unsubscribe();
+      v.complete();
+    }
+  });
 
   test1.apiSource18 = 'Changed from owner';
   try {
     yassi.communicate('TestSource.apiSource18', 'change18', ['change on api request - requested', 'yassi', 'awesome']);
-  } catch(err) {
+  } catch (err) {
     t.is(err.message, 'communicate is deprecated, please use castRequest instead');
   }
 
@@ -655,8 +634,11 @@ test('Fail to change array item from listener', (t) => {
 
   const test1 = new TestSource();
   const test2 = new TestDest();
-  const expectedValues = [[1, 2, 3], [1, 2, 3, 'a']];
-  let v = new BehaviorSubject<any>(null);
+  const expectedValues = [
+    [1, 2, 3],
+    [1, 2, 3, 'a'],
+  ];
+  const v = new BehaviorSubject<any>(null);
   test2.prop19.subscribe((val: any[]) => {
     t.deepEqual(val, expectedValues.shift());
     if (val.length === 4) {
@@ -678,8 +660,12 @@ test('Fail to change object property from listener', (t) => {
 
   const test1 = new TestSource();
   const test2 = new TestDest();
-  const expectedValues: any[] = [{a: 1, b:2}, {a: 2, b: 2}, {a: 2, b: 2, c: 3}];
-  let v = new BehaviorSubject<any>(null);
+  const expectedValues: any[] = [
+    { a: 1, b: 2 },
+    { a: 2, b: 2 },
+    { a: 2, b: 2, c: 3 },
+  ];
+  const v = new BehaviorSubject<any>(null);
   test2.prop20.subscribe((val: any) => {
     t.deepEqual(val, expectedValues.shift());
     if (val.a === 2) {
@@ -715,7 +701,7 @@ test('observe false like values changes', (t) => {
   const test1 = new TestSource();
   const test2 = new TestDest();
   const expectedValues = [undefined, true, false, ''];
-  let v = new BehaviorSubject<any>(null);
+  const v = new BehaviorSubject<any>(null);
   test2.prop22.subscribe((val: boolean) => {
     t.is(val, expectedValues.shift());
     if (expectedValues.length === 0) {
@@ -737,8 +723,9 @@ test('registerMiddleware for before yassit', (t) => {
 });
 
 test('register middleware for after yassit', (t) => {
-  registerMiddleware('yassit', 'after',
-    (proto: any, key: string, val: any) => console.log(`-------${proto.constructor.name}.${key}=${val}-------`));
+  registerMiddleware('yassit', 'after', (proto: any, key: string, val: any) =>
+    console.log(`-------${proto.constructor.name}.${key}=${val}-------`)
+  );
   const test1 = new TestSource();
   test1.numProp3 = 1234;
   t.is(test1.numProp3, 1234);

@@ -11,16 +11,7 @@
   ],
   "rules": {
     "no-explicit-any": 0,
-    "comma-dangle": [
-      "error",
-      {
-        "arrays": "never",
-        "objects": "never",
-        "imports": "never",
-        "exports": "never",
-        "functions": "never"
-      }
-    ],
+    "comma-dangle": [ "error", "always-multiline" ],
     "arrow-parens": "error"
   }
 }

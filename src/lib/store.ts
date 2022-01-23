@@ -1,4 +1,4 @@
-import {BehaviorSubject} from "rxjs";
+import { BehaviorSubject } from 'rxjs';
 
 export enum ElementStatus {
   PENDING = 'PENDING',
@@ -51,7 +51,7 @@ class StoreWrapper {
   }
 
   ensureUniqueuness(key: string) {
-    let elem = yassiStore.get(key);
+    const elem = yassiStore.get(key);
     if (elem) {
       if (elem.status === ElementStatus.ACTIVE) {
         const err = new Error(`Store already has an active entry with name ${key}`);
@@ -95,4 +95,3 @@ class StoreWrapper {
 }
 
 export const yassiStore: StoreWrapper = new StoreWrapper();
-

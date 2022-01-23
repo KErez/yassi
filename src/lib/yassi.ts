@@ -23,7 +23,7 @@ const _facadeOwner = {};
 
 export class YassiPropertyDescriptor {
   static validateYassiPropertyName(yassiPropName: string) {
-    if (!yassiPropName || yassiPropName.length <= 0 || !RegExp('^[A-Za-z_][A-Za-z_$0-9^.].*').test(yassiPropName) ) {
+    if (!yassiPropName || yassiPropName.length <= 0 || !RegExp('^[A-Za-z_][A-Za-z_$0-9^.].*').test(yassiPropName)) {
       throw new Error('You must provide valid yassiPropertyName');
     }
   }
@@ -50,9 +50,7 @@ export function _yassit(name: string, owner?: any, ownerProp?: string) {
   return function(target: any, key: string) {
     overridePropertyDefinition(target, key, new YassiPropertyDescriptor(name));
   };
-
 }
-
 
 /**
  * To make sure the property definition is on the instance and not on the class you need to define the property
@@ -61,9 +59,7 @@ export function _yassit(name: string, owner?: any, ownerProp?: string) {
  *  Now each time an instance is called the setter is called and set a new setter and getter definition
  * Thanks to Romke Van Der Meulen - https://romkevandermeulen.nl/2018/01/24/typescript-property-decorators.html
  */
-export function overridePropertyDefinition(prototype: any,
-                                    key: string,
-                                    yassiDescriptor: YassiPropertyDescriptor) {
+export function overridePropertyDefinition(prototype: any, key: string, yassiDescriptor: YassiPropertyDescriptor) {
   try {
     yassiStore.ensureUniqueuness(yassiDescriptor.name);
   } catch (e) {
@@ -79,20 +75,22 @@ export function overridePropertyDefinition(prototype: any,
    * key - the property name that yassit was attached too
    */
   Object.defineProperty(prototype, key, {
-    set(firstValue: any) { // First set called on instantiation of the class
+    set(firstValue: any) {
+      // First set called on instantiation of the class
       activateElementIfNeeded(yassiDescriptor);
       Object.defineProperty(this, key, {
         // this - the instance of a 'prototype' class
         get() {
-          let elem = yassiStore.get(yassiDescriptor.name);
+          const elem = yassiStore.get(yassiDescriptor.name);
           return elem ? elem.value : undefined;
         },
-        set(value: any) { // Here we override the above set
+        set(value: any) {
+          // Here we override the above set
           executeBeforeYassitMiddleware(prototype, key, value);
-          let elem = yassiStore.get(yassiDescriptor.name);
+          const elem = yassiStore.get(yassiDescriptor.name);
           setElementValueHandler(elem, value, prototype, key);
           yassiStore.set(yassiDescriptor.name, elem);
-          if (!Array.isArray(elem.value)){
+          if (!Array.isArray(elem.value)) {
             elem.observer.next(elem.value);
           }
           executeAfterYassitMiddleware(prototype, key, elem.value);
@@ -135,12 +133,12 @@ function setElementValueHandler(element: StoreElement, value: any, prototype: an
         element.observer.next(getSafeValue(element.value));
         executeAfterYassitMiddleware(prototype, key, element.value);
         return true;
-      }
+      },
     });
     // The reference was change so need to fire the event
     // TODO: Do we need a revokeable Proxy and revoke it here???
     element.observer.next(element.value);
-  } else if (typeof (value) === 'object') {
+  } else if (typeof value === 'object') {
     element.value = new Proxy(value, {
       // @ts-ignore
       deleteProperty(target, property) {
@@ -157,8 +155,8 @@ function setElementValueHandler(element: StoreElement, value: any, prototype: an
           target[property] = val;
         }
         return true;
-      }
-    })
+      },
+    });
   } else {
     element.value = value;
   }
@@ -166,12 +164,12 @@ function setElementValueHandler(element: StoreElement, value: any, prototype: an
 
 function getSafeValue(value: any) {
   if (value) {
-    if (typeof(value) === 'object') {
+    if (typeof value === 'object') {
       // TODO: Change this implementation with exceptional Proxy
       if (Array.isArray(value)) {
         return [...value];
       } else {
-        return {...value};
+        return { ...value };
       }
     }
   }
@@ -190,25 +188,27 @@ function activateElementIfNeeded(yassiDescriptor: YassiPropertyDescriptor) {
   }
 }
 
-export function overrideSelectPropertyDefinition(prototype: any,
-                                          key: string,
-                                          yassiDescriptor: YassiPropertyDescriptor,
-                                          obsrv: boolean = false) {
+export function overrideSelectPropertyDefinition(
+  prototype: any,
+  key: string,
+  yassiDescriptor: YassiPropertyDescriptor,
+  obsrv = false
+) {
   Object.defineProperty(prototype, key, {
     get() {
       executeBeforeSelectMiddleware(prototype, key);
       // One may observe a property that was not yassit yet. In this case we like to create a pending entry in the store
-      let element = yassiStore.getOrCreate(yassiDescriptor.name, ElementStatus.PENDING);
+      const element = yassiStore.getOrCreate(yassiDescriptor.name, ElementStatus.PENDING);
       const result: any = obsrv ? element.observer.asObservable() : element.value;
       executeAfterSelectMiddleware(prototype, key, element ? element.value : null);
       return result;
-    }
+    },
     // We don't create setter since we want selected properties to behave like readonly properties
   });
 }
 
 export function _get(yassiDescriptor: YassiPropertyDescriptor) {
-  let element = yassiStore.get(yassiDescriptor.name);
+  const element = yassiStore.get(yassiDescriptor.name);
   return element ? getSafeValue(element.value) : undefined;
 }
 
@@ -217,17 +217,17 @@ export function _registerMiddleware(action: string, position: string, fn: (proto
   let arrayToSearch;
   switch (action) {
     case 'yassit':
-      arrayToSearch = (position === 'after') ? afterYassitMiddleware : beforeYassitMiddleware;
+      arrayToSearch = position === 'after' ? afterYassitMiddleware : beforeYassitMiddleware;
       break;
     case 'observe':
     case 'select':
-      arrayToSearch = (position === 'after') ? afterSelectingMiddleware : beforeSelectingMiddleware;
+      arrayToSearch = position === 'after' ? afterSelectingMiddleware : beforeSelectingMiddleware;
       break;
     default:
       return;
   }
 
-  for (let item of arrayToSearch) {
+  for (const item of arrayToSearch) {
     // prevent duplication
     if (item === fn) {
       return;
@@ -236,8 +236,11 @@ export function _registerMiddleware(action: string, position: string, fn: (proto
   arrayToSearch.push(fn);
 }
 
-export function _facade(yassiDescriptor: YassiPropertyDescriptor, sourceElementDescriptors: YassiPropertyDescriptor[],
-                        fn: (yassiElementsValue: any[]) => any) {
+export function _facade(
+  yassiDescriptor: YassiPropertyDescriptor,
+  sourceElementDescriptors: YassiPropertyDescriptor[],
+  fn: (yassiElementsValue: any[]) => any
+) {
   if (_facadeOwner[yassiDescriptor.name] === undefined) {
     _facadeOwner[yassiDescriptor.name] = null;
   }
@@ -255,7 +258,7 @@ export function _facade(yassiDescriptor: YassiPropertyDescriptor, sourceElementD
       }),
       map((result: any) => {
         // the existence of breakFacadeChain indicates that we need to return the payload only instead of the entire results
-        return (result.breakFacadeChain != null) ? result.payload: result;
+        return result.breakFacadeChain != null ? result.payload : result;
       }),
       catchError((err) => {
         console.log(err);
@@ -303,28 +306,28 @@ export function _republish(yassiPropName: string) {
 
 // @ts-ignore
 function executeBeforeYassitMiddleware(prototype: any, key: string, value: any) {
-  for (let item of beforeYassitMiddleware) {
+  for (const item of beforeYassitMiddleware) {
     item(prototype, key, value);
   }
 }
 
 // @ts-ignore
 function executeAfterYassitMiddleware(prototype: any, key: string, value: any) {
-  for (let item of afterYassitMiddleware) {
+  for (const item of afterYassitMiddleware) {
     item(prototype, key, value);
   }
 }
 
 // @ts-ignore
 function executeBeforeSelectMiddleware(prototype: any, key: string) {
-  for (let item of beforeSelectingMiddleware) {
+  for (const item of beforeSelectingMiddleware) {
     item(prototype, key);
   }
 }
 
 // @ts-ignore
 function executeAfterSelectMiddleware(prototype: any, key: string, value: any) {
-  for (let item of afterSelectingMiddleware) {
+  for (const item of afterSelectingMiddleware) {
     item(prototype, key, value);
   }
 }
