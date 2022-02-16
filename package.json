@@ -1,6 +1,6 @@
 {
   "name": "yassi",
-  "version": "0.13.2",
+  "version": "0.13.3",
   "description": "Yet another simple store implementation",
   "author": {
     "name": "Kfir Erez",
@@ -37,13 +37,13 @@
     "cov:send": "nyc report --reporter=lcov > coverage.lcov && codecov",
     "cov:check": "nyc report && nyc check-coverage --lines 100 --functions 100 --branches 100",
     "doc": "run-s doc:html && open build/docs/index.html",
-    "doc:html": "typedoc src/ --exclude **/*.spec.ts --target ES6 --mode file --out build/docs",
-    "doc:json": "typedoc src/ --exclude **/*.spec.ts --target ES6 --mode file --json build/docs/typedoc.json",
+    "doc:html": "typedoc src/ --exclude **/*.spec.ts file --out build/docs",
+    "doc:json": "typedoc src/ --exclude **/*.spec.ts file --json build/docs/typedoc.json",
     "doc:publish": "gh-pages -m \"[ci skip] Updates\" -d build/docs",
     "version": "standard-version",
     "reset": "git clean -dfx && git reset --hard && npm i",
     "clean": "trash build test",
-    "all": "run-s reset test doc:html",
+    "all": "test doc:html",
     "prepare-release": "run-s all version doc:publish"
   },
   "scripts-info": {
