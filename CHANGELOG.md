@@ -1,6 +1,8 @@
-# Change Log
+# Changelog
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+
+### [0.13.11](https://github.com/KErez/yassi/compare/v0.13.1...v0.13.11) (2023-08-14)
 
 <a name="0.13.10"></a>
 ## [0.13.10](https://github.com/KErez/yassi/compare/v0.13.2...v0.13.10) (2022-02-17)
