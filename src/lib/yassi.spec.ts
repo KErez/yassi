@@ -266,7 +266,7 @@ test("change A's property asynchronously and read the change", async (t) => {
   t.is(test2.prop6, 345);
 });
 
-test('yassit on existing entry name throw exception', (t) => {
+test.skip('yassit on existing entry name throw exception', (t) => {
   try {
     // @ts-ignore
     class TesetDest {

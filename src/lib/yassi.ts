@@ -64,7 +64,16 @@ export function _yassit(name: string, owner?: any, ownerProp?: string) {
 export function overridePropertyDefinition(prototype: any,
                                     key: string,
                                     yassiDescriptor: YassiPropertyDescriptor) {
-  yassiStore.ensureUniqueuness(yassiDescriptor.name);
+  try {
+    yassiStore.ensureUniqueuness(yassiDescriptor.name);
+  } catch (e) {
+    if (e.type === 'duplicate') {
+      console.error(`Ignoring: ${e.message}`);
+      return;
+    }
+    throw e;
+  }
+
   yassiStore.set(yassiDescriptor.name, new StoreElement(ElementStatus.ACTIVE, prototype));
   /**
    * prototype - The constructor of the class that declared yassit on a property

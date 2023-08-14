@@ -51,10 +51,12 @@ class StoreWrapper {
   }
 
   ensureUniqueuness(key: string) {
-    let elem = yassiStore.get(key);
+    const elem = yassiStore.get(key);
     if (elem) {
       if (elem.status === ElementStatus.ACTIVE) {
-        throw new Error(`Store already has an active entry with name ${key}`);
+        const err = new Error(`Store already has an active entry with name ${key}`);
+        (err as any).type = 'duplicate';
+        throw err;
       } else {
         elem.status = ElementStatus.ACTIVE;
       }
